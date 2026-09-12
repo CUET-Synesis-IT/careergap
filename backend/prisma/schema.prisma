@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  USER
+  REVIEWER
+  SUPER_ADMIN
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  REVIEW
+  COMPLETED
+  FAILED
+}
+
+enum ReviewTaskStatus {
+  OPEN
+  LOCKED
+  COMPLETED
+}
+
+enum SkillImportance {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ============================================
+// USER
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
+  isActive     Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User-owned resources
+  resumes   Resume[]
+  analyses  Analysis[]
+
+  // Reviewer relationships
+  lockedReviewTasks ReviewTask[] @relation("ReviewTaskLockedBy")
+  reviews           Review[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+// ============================================
+// CAREER
+// ============================================
+
+model Career {
+  id          String @id @default(uuid())
+  slug        String @unique
+  name        String
+  description String
+
+  // JSON career profile
+  //
+  // Example:
+  // {
+  //   "skills": [
+  //     {
+  //       "name": "Node.js",
+  //       "importance": "HIGH"
+  //     }
+  //   ]
+  // }
+  profile Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  analyses Analysis[]
+}
+
+// ============================================
+// RESUME
+// ============================================
+
+model Resume {
+  id String @id @default(uuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fileName String
+  text     String
+  textHash String
+
+  createdAt DateTime @default(now())
+
+  analyses Analysis[]
+
+  @@index([userId])
+  @@index([textHash])
+}
+
+// ============================================
+// ANALYSIS
+// ============================================
+
+model Analysis {
+  id String @id @default(uuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  resumeId String
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  careerId String
+  career   Career @relation(fields: [careerId], references: [id], onDelete: Restrict)
+
+  // ------------------------------------------
+  // AI extracted skills
+  // ------------------------------------------
+
+  extractedSkills Json
+
+  // ------------------------------------------
+  // AI-generated result
+  // ------------------------------------------
+
+  aiMatchPercentage Float?
+  aiMatchedSkills   Json?
+  aiMissingSkills   Json?
+
+  // ------------------------------------------
+  // Human-verified final result
+  // ------------------------------------------
+
+  finalMatchPercentage Float?
+  finalMatchedSkills   Json?
+  finalMissingSkills   Json?
+
+  // ------------------------------------------
+  // Lifecycle
+  // ------------------------------------------
+
+  status AnalysisStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One analysis has one review task
+  reviewTask ReviewTask?
+
+  @@index([userId])
+  @@index([resumeId])
+  @@index([careerId])
+  @@index([status])
+  @@index([userId, status])
+}
+
+// ============================================
+// REVIEW TASK
+// ============================================
+
+model ReviewTask {
+  id String @id @default(uuid())
+
+  analysisId String   @unique
+  analysis   Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  status ReviewTaskStatus @default(OPEN)
+
+  // Reviewer currently holding the lock
+  lockedById String?
+  lockedBy   User? @relation("ReviewTaskLockedBy", fields: [lockedById], references: [id], onDelete: SetNull)
+
+  // Temporary reviewer lock
+  lockExpiresAt DateTime?
+
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review Review?
+
+  @@index([status])
+  @@index([lockedById])
+  @@index([lockExpiresAt])
+  @@index([status, lockExpiresAt])
+}
+
+// ============================================
+// REVIEW
+// ============================================
+
+model Review {
+  id String @id @default(uuid())
+
+  reviewTaskId String     @unique
+  reviewTask   ReviewTask @relation(fields: [reviewTaskId], references: [id], onDelete: Cascade)
+
+  reviewerId String
+  reviewer   User @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  // Snapshot of AI result before reviewer correction
+  originalMatchPercentage Float?
+  originalMatchedSkills   Json?
+  originalMissingSkills   Json?
+
+  // Reviewer-approved result
+  finalMatchPercentage Float
+  finalMatchedSkills   Json
+  finalMissingSkills   Json
+
+  comment String?
+
+  createdAt DateTime @default(now())
+
+  @@index([reviewerId])
+  @@index([createdAt])
+}
