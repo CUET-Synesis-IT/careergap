@@ -18,7 +18,6 @@
   "keywords": [],
   "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^7.10.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -32,6 +31,7 @@
     "zod": "^4.6.2"
   },
   "devDependencies": {
+    "@prisma/client": "^6.19.3",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -42,7 +42,7 @@
     "@types/supertest": "^7.2.1",
     "eslint": "^10.10.0",
     "prettier": "^3.9.6",
-    "prisma": "^8.0.0-rc.14",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",
