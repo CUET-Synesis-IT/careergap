@@ -1,10 +1,3 @@
-Yes. Now I would lock the architecture around **10-day feasibility + minimum LLM usage + two genuine concurrency problems**.
-
-The biggest change I recommend is this:
-
-> **Do not use LLM for every stage.**
-> Use LLM only where language understanding is actually needed. Everything else should be deterministic code/database logic.
-
 # CareerGap — Full Architecture Plan
 
 ## 1. Core Product
