@@ -14,7 +14,7 @@ const registerSchema = z
   .object({
     name: z.string().trim().min(1, "Full name is required"),
     email: z.string().trim().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -27,7 +27,10 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser } = useAuth();
-  const [serverError, setServerError] = useState<{ message: string; code?: string } | null>(null);
+  const [serverError, setServerError] = useState<{
+    message: string;
+    code?: string;
+  } | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const {
@@ -61,7 +64,9 @@ export default function RegisterPage() {
           });
         } else {
           setServerError({
-            message: err.message || "Unable to create your account right now. Please try again.",
+            message:
+              err.message ||
+              "Unable to create your account right now. Please try again.",
             code: err.code,
           });
         }
@@ -76,7 +81,10 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen flex-col justify-center bg-zinc-50 px-4 py-12 dark:bg-black sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl tracking-tight">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 font-bold text-2xl tracking-tight"
+        >
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
             CG
           </span>
@@ -87,7 +95,10 @@ export default function RegisterPage() {
         </h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-zinc-900 hover:underline dark:text-zinc-100">
+          <Link
+            href="/login"
+            className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+          >
             Log in
           </Link>
         </p>
@@ -135,7 +146,9 @@ export default function RegisterPage() {
                 className="mt-1 block w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-hidden focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100 dark:focus:ring-zinc-100"
               />
               {errors.name && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
@@ -151,7 +164,9 @@ export default function RegisterPage() {
                 className="mt-1 block w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-hidden focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100 dark:focus:ring-zinc-100"
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -167,7 +182,9 @@ export default function RegisterPage() {
                 className="mt-1 block w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-hidden focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100 dark:focus:ring-zinc-100"
               />
               {errors.password && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -183,7 +200,9 @@ export default function RegisterPage() {
                 className="mt-1 block w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-hidden focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100 dark:focus:ring-zinc-100"
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
 
@@ -202,4 +221,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
