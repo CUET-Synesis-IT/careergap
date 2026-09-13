@@ -1,12 +1,12 @@
 # CareerGap — Complete Frontend API Documentation
 
-**Document Version:** 1.0  
-**Backend:** Node.js + TypeScript + Express  
-**Database:** PostgreSQL + Prisma  
-**Cache:** Redis  
-**Authentication:** JWT  
-**AI:** Gemini through backend provider abstraction  
-**API Style:** REST  
+**Document Version:** 1.0
+**Backend:** Node.js + TypeScript + Express
+**Database:** PostgreSQL + Prisma
+**Cache:** Redis
+**Authentication:** JWT
+**AI:** Gemini through backend provider abstraction
+**API Style:** REST
 **Base URL:** `http://localhost:5000/api`
 
 ---
@@ -246,22 +246,19 @@ A frontend route should be protected according to the user's role.
 
 # 7. Authentication Token Strategy
 
-The backend returns:
+The backend returns a single:
 
 ```text
 accessToken
-refreshToken
 ```
 
-The access token is short-lived.
+The access token is used for all authenticated API calls.
 
-The frontend should use the access token for normal API calls.
+There is no refresh token. There is no `/api/auth/refresh` endpoint.
 
-When the access token expires, the frontend should use the refresh mechanism defined by the backend implementation.
+When the access token expires or a `401` is received, the frontend must clear local authentication state and redirect the user to login.
 
-Do not assume that an expired access token means the user must immediately log in again.
-
-The frontend API client should centralize authentication handling.
+The frontend API client should centralize authentication handling so that all `401` responses are handled in one place.
 
 Recommended structure:
 
@@ -305,7 +302,7 @@ Example:
 The frontend should generally read:
 
 ```typescript
-response.data.data
+response.data.data;
 ```
 
 depending on how the API client unwraps responses.
@@ -377,20 +374,20 @@ if (error.code === "INVALID_CREDENTIALS") {
 
 Frontend behavior:
 
-| Status | Meaning | Frontend action |
-|---|---|---|
-| 200 | Successful request | Use response |
-| 201 | Resource created | Update UI / navigate |
-| 400 | Invalid request | Show validation/error |
-| 401 | Not authenticated | Refresh token or login |
-| 403 | No permission | Show forbidden page/message |
-| 404 | Resource missing | Show not found |
-| 409 | Conflict | Explain conflict |
-| 413 | File too large | Tell user to upload smaller file |
-| 422 | Validation failure | Show form errors |
-| 429 | Too many requests | Ask user to wait |
-| 500 | Backend error | Show generic error |
-| 503 | Temporary service unavailable | Retry later |
+| Status | Meaning                       | Frontend action                  |
+| ------ | ----------------------------- | -------------------------------- |
+| 200    | Successful request            | Use response                     |
+| 201    | Resource created              | Update UI / navigate             |
+| 400    | Invalid request               | Show validation/error            |
+| 401    | Not authenticated             | Clear auth state and redirect to login |
+| 403    | No permission                 | Show forbidden page/message      |
+| 404    | Resource missing              | Show not found                   |
+| 409    | Conflict                      | Explain conflict                 |
+| 413    | File too large                | Tell user to upload smaller file |
+| 422    | Validation failure            | Show form errors                 |
+| 429    | Too many requests             | Ask user to wait                 |
+| 500    | Backend error                 | Show generic error               |
+| 503    | Temporary service unavailable | Retry later                      |
 
 ---
 
@@ -474,11 +471,11 @@ Create a new normal user.
 
 ### Fields
 
-| Field | Type | Required | Description |
-|---|---|---:|---|
-| name | string | Yes | User's display name |
-| email | string | Yes | Valid email |
-| password | string | Yes | Password |
+| Field    | Type   | Required | Description         |
+| -------- | ------ | -------: | ------------------- |
+| name     | string |      Yes | User's display name |
+| email    | string |      Yes | Valid email         |
+| password | string |      Yes | Password            |
 
 The frontend should validate basic requirements before submitting.
 
@@ -504,7 +501,9 @@ Example:
       "id": "uuid",
       "name": "John Doe",
       "email": "john@example.com",
-      "role": "USER"
+      "role": "USER",
+      "isActive": true,
+      "createdAt": "2026-09-12T14:30:00.000Z"
     }
   }
 }
@@ -584,17 +583,16 @@ NONE
       "id": "uuid",
       "name": "John Doe",
       "email": "john@example.com",
-      "role": "USER"
+      "role": "USER",
+      "isActive": true,
+      "createdAt": "2026-09-12T14:30:00.000Z"
     },
-    "accessToken": "JWT_ACCESS_TOKEN",
-    "refreshToken": "REFRESH_TOKEN"
+    "accessToken": "JWT_ACCESS_TOKEN"
   }
 }
 ```
 
-The frontend should store authentication information using the project's secure token strategy.
-
-For browser security, prefer HttpOnly cookies if the backend implementation supports them.
+Store the `accessToken` in memory or `localStorage`. Send it as `Authorization: Bearer <accessToken>` on every authenticated request.
 
 ---
 
@@ -630,7 +628,9 @@ Authorization: Bearer <accessToken>
       "id": "uuid",
       "name": "John Doe",
       "email": "john@example.com",
-      "role": "USER"
+      "role": "USER",
+      "isActive": true,
+      "createdAt": "2026-09-12T14:30:00.000Z"
     }
   }
 }
@@ -654,7 +654,8 @@ REQUIRED
 
 Purpose:
 
-Invalidate the current refresh-token session.
+Signal that the user is logging out. The frontend clears local authentication state.
+The token is short-lived and will expire on its own; there is no server-side token revocation.
 
 ---
 
@@ -1093,13 +1094,13 @@ because the analysis has meaningful intermediate states.
 
 Recommended UI:
 
-| Backend status | UI |
-|---|---|
-| PENDING | Waiting to start |
-| PROCESSING | Analyzing resume |
-| REVIEW | Waiting for human review |
-| COMPLETED | Analysis completed |
-| FAILED | Analysis failed |
+| Backend status | UI                       |
+| -------------- | ------------------------ |
+| PENDING        | Waiting to start         |
+| PROCESSING     | Analyzing resume         |
+| REVIEW         | Waiting for human review |
+| COMPLETED      | Analysis completed       |
+| FAILED         | Analysis failed          |
 
 Example:
 
@@ -1359,14 +1360,8 @@ When AI processing finishes:
       },
       "aiResult": {
         "matchPercentage": 72.73,
-        "matchedSkills": [
-          "Node.js",
-          "PostgreSQL"
-        ],
-        "missingSkills": [
-          "Redis",
-          "System Design"
-        ]
+        "matchedSkills": ["Node.js", "PostgreSQL"],
+        "missingSkills": ["Redis", "System Design"]
       },
       "createdAt": "2026-09-12T14:30:00.000Z",
       "updatedAt": "2026-09-12T14:30:20.000Z"
@@ -1405,26 +1400,13 @@ After reviewer approval:
       },
       "aiResult": {
         "matchPercentage": 72.73,
-        "matchedSkills": [
-          "Node.js",
-          "PostgreSQL"
-        ],
-        "missingSkills": [
-          "Redis",
-          "System Design"
-        ]
+        "matchedSkills": ["Node.js", "PostgreSQL"],
+        "missingSkills": ["Redis", "System Design"]
       },
       "finalResult": {
         "matchPercentage": 75,
-        "matchedSkills": [
-          "Node.js",
-          "PostgreSQL",
-          "Docker"
-        ],
-        "missingSkills": [
-          "Redis",
-          "System Design"
-        ]
+        "matchedSkills": ["Node.js", "PostgreSQL", "Docker"],
+        "missingSkills": ["Redis", "System Design"]
       },
       "createdAt": "2026-09-12T14:30:00.000Z",
       "updatedAt": "2026-09-12T14:45:00.000Z"
@@ -1492,15 +1474,8 @@ Example:
 ```json
 {
   "matchPercentage": 75,
-  "matchedSkills": [
-    "Node.js",
-    "PostgreSQL",
-    "Docker"
-  ],
-  "missingSkills": [
-    "Redis",
-    "System Design"
-  ]
+  "matchedSkills": ["Node.js", "PostgreSQL", "Docker"],
+  "missingSkills": ["Redis", "System Design"]
 }
 ```
 
@@ -1543,11 +1518,7 @@ according to the design.
 Example:
 
 ```json
-[
-  "Node.js",
-  "PostgreSQL",
-  "Docker"
-]
+["Node.js", "PostgreSQL", "Docker"]
 ```
 
 UI example:
@@ -1567,10 +1538,7 @@ UI example:
 Example:
 
 ```json
-[
-  "Redis",
-  "System Design"
-]
+["Redis", "System Design"]
 ```
 
 UI:
@@ -2009,14 +1977,8 @@ Example:
       "status": "REVIEW",
       "aiResult": {
         "matchPercentage": 72.73,
-        "matchedSkills": [
-          "Node.js",
-          "PostgreSQL"
-        ],
-        "missingSkills": [
-          "Redis",
-          "System Design"
-        ]
+        "matchedSkills": ["Node.js", "PostgreSQL"],
+        "missingSkills": ["Redis", "System Design"]
       }
     }
   }
@@ -2154,15 +2116,8 @@ REVIEWER
 ```json
 {
   "finalMatchPercentage": 75,
-  "finalMatchedSkills": [
-    "Node.js",
-    "PostgreSQL",
-    "Docker"
-  ],
-  "finalMissingSkills": [
-    "Redis",
-    "System Design"
-  ],
+  "finalMatchedSkills": ["Node.js", "PostgreSQL", "Docker"],
+  "finalMissingSkills": ["Redis", "System Design"],
   "comment": "Docker experience was present in the resume."
 }
 ```
@@ -2246,15 +2201,8 @@ Example:
       "status": "COMPLETED",
       "finalResult": {
         "matchPercentage": 75,
-        "matchedSkills": [
-          "Node.js",
-          "PostgreSQL",
-          "Docker"
-        ],
-        "missingSkills": [
-          "Redis",
-          "System Design"
-        ]
+        "matchedSkills": ["Node.js", "PostgreSQL", "Docker"],
+        "missingSkills": ["Redis", "System Design"]
       }
     }
   }
@@ -2471,6 +2419,7 @@ GET /health
 Authentication:
 
 ```text NONE
+
 ```
 
 Success:
@@ -2492,10 +2441,7 @@ Frontend normally does not need to call it.
 The frontend agent should create types similar to:
 
 ```typescript
-export type UserRole =
-  | "USER"
-  | "REVIEWER"
-  | "SUPER_ADMIN";
+export type UserRole = "USER" | "REVIEWER" | "SUPER_ADMIN";
 
 export type AnalysisStatus =
   | "PENDING"
@@ -2504,10 +2450,7 @@ export type AnalysisStatus =
   | "COMPLETED"
   | "FAILED";
 
-export type ReviewTaskStatus =
-  | "OPEN"
-  | "LOCKED"
-  | "COMPLETED";
+export type ReviewTaskStatus = "OPEN" | "LOCKED" | "COMPLETED";
 ```
 
 ---
@@ -2526,8 +2469,8 @@ export interface User {
 Never include:
 
 ```typescript
-password
-passwordHash
+password;
+passwordHash;
 ```
 
 in frontend user types.
@@ -2649,7 +2592,7 @@ Do not make API requests directly inside every component.
 Bad:
 
 ```typescript
-fetch("/api/analyses/123")
+fetch("/api/analyses/123");
 ```
 
 inside random components.
@@ -2722,10 +2665,10 @@ Error parsing
 Example conceptual interface:
 
 ```typescript
-apiClient.get<T>(url)
-apiClient.post<T>(url, body)
-apiClient.patch<T>(url, body)
-apiClient.delete<T>(url)
+apiClient.get<T>(url);
+apiClient.post<T>(url, body);
+apiClient.patch<T>(url, body);
+apiClient.delete<T>(url);
 ```
 
 ---
@@ -2789,21 +2732,9 @@ Use predictable query keys.
 Example:
 
 ```typescript
-["auth", "me"]
-
-["careers"]
-
-["resumes"]
-
-["analyses"]
-
-["analyses", analysisId]
-
-["review-tasks"]
-
-["review-tasks", taskId]
-
-["admin", "reviewers"]
+["auth", "me"]["careers"]["resumes"]["analyses"][("analyses", analysisId)][
+  "review-tasks"
+][("review-tasks", taskId)][("admin", "reviewers")];
 ```
 
 After creating an analysis:
@@ -2843,7 +2774,7 @@ useQuery({
     }
 
     return false;
-  }
+  },
 });
 ```
 
@@ -3379,22 +3310,22 @@ send:
 
 # 105. Authorization Matrix
 
-| Endpoint | USER | REVIEWER | SUPER_ADMIN |
-|---|:---:|:---:|:---:|
-| Register | ✓ | ✓ | ✓ |
-| Login | ✓ | ✓ | ✓ |
-| `/auth/me` | ✓ | ✓ | ✓ |
-| Upload resume | ✓ | ✗ | ✗ |
-| Get own resume | ✓ | ✗ | ✗ |
-| Careers | ✓ | optional | optional |
-| Create analysis | ✓ | ✗ | ✗ |
-| Get own analysis | ✓ | ✗ | ✗ |
-| Analysis history | ✓ | ✗ | ✗ |
-| Review queue | ✗ | ✓ | ✗ |
-| Claim task | ✗ | ✓ | ✗ |
-| Get review task | ✗ | ✓ | ✗ |
-| Submit review | ✗ | ✓ | ✗ |
-| Reviewer management | ✗ | ✗ | ✓ |
+| Endpoint            | USER | REVIEWER | SUPER_ADMIN |
+| ------------------- | :--: | :------: | :---------: |
+| Register            |  ✓   |    ✓     |      ✓      |
+| Login               |  ✓   |    ✓     |      ✓      |
+| `/auth/me`          |  ✓   |    ✓     |      ✓      |
+| Upload resume       |  ✓   |    ✗     |      ✗      |
+| Get own resume      |  ✓   |    ✗     |      ✗      |
+| Careers             |  ✓   | optional |  optional   |
+| Create analysis     |  ✓   |    ✗     |      ✗      |
+| Get own analysis    |  ✓   |    ✗     |      ✗      |
+| Analysis history    |  ✓   |    ✗     |      ✗      |
+| Review queue        |  ✗   |    ✓     |      ✗      |
+| Claim task          |  ✗   |    ✓     |      ✗      |
+| Get review task     |  ✗   |    ✓     |      ✗      |
+| Submit review       |  ✗   |    ✓     |      ✗      |
+| Reviewer management |  ✗   |    ✗     |      ✓      |
 
 The backend remains the final authorization authority.
 
@@ -3428,7 +3359,7 @@ USER
 
 REVIEWER
 → /reviewer/*
- 
+
 SUPER_ADMIN
 → /admin/*
 ```
@@ -4029,10 +3960,7 @@ For a simple project, native `fetch()` is sufficient.
 Example:
 
 ```typescript
-async function apiRequest<T>(
-  path: string,
-  options?: RequestInit
-): Promise<T> {
+async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
@@ -4187,7 +4115,6 @@ export interface Reviewer {
 export interface LoginResponse {
   user: User;
   accessToken: string;
-  refreshToken: string;
 }
 ```
 
@@ -4286,9 +4213,7 @@ If backend returns:
 401
 ```
 
-the API client should attempt the appropriate token-refresh flow if configured.
-
-If refresh fails:
+the API client must clear local authentication state and redirect the user to `/login`.
 
 ```text
 Clear auth state
@@ -4530,7 +4455,7 @@ Treat backend lockExpiresAt as authoritative.
 
 Handle HTTP 409 as a business conflict, not a generic crash.
 
-Handle HTTP 401 through the authentication refresh/logout flow.
+Handle HTTP 401 by clearing auth state and redirecting to login.
 
 Handle HTTP 403 as permission denial.
 
