@@ -1,12 +1,14 @@
 import { prisma } from "../config/database";
-import { AppError } from "../middleware/error.middleware";
-import type { CareerResponse } from "../types/career";
 import { env } from "../config/env";
+import { AppError } from "../middleware/error.middleware";
+
 import {
   cacheCareerProfile,
   getCachedCareerProfile,
 } from "../cache/career-cache";
-import type { CareerProfile } from "../types/career";
+
+import type { CareerProfile, CareerResponse } from "../types/career";
+
 const careerSelect = {
   id: true,
   slug: true,
@@ -23,9 +25,7 @@ export async function getCareers(): Promise<CareerResponse[]> {
   });
 }
 
-export async function getCareerById(
-  careerId: string,
-): Promise<CareerResponse> {
+export async function getCareerById(careerId: string): Promise<CareerResponse> {
   const career = await prisma.career.findUnique({
     where: {
       id: careerId,
@@ -34,11 +34,7 @@ export async function getCareerById(
   });
 
   if (!career) {
-    throw new AppError(
-      "Career not found.",
-      404,
-      "CAREER_NOT_FOUND",
-    );
+    throw new AppError("Career not found.", 404, "CAREER_NOT_FOUND");
   }
 
   return career;
