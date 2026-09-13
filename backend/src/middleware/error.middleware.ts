@@ -1,5 +1,7 @@
 import type { ErrorRequestHandler } from "express";
 import { sendError } from "../utils/response";
+import multer from "multer";
+import { env } from "../config/env";
 
 export class AppError extends Error {
   statusCode: number;
@@ -30,6 +32,21 @@ export const errorMiddleware: ErrorRequestHandler = (
   _next,
 ) => {
   console.error(error);
+
+  if (error instanceof multer.MulterError) {
+    if (error.code === "LIMIT_FILE_SIZE") {
+      sendError(
+        res,
+        `Resume file must not exceed ${env.MAX_RESUME_SIZE_MB} MB.`,
+        "FILE_TOO_LARGE",
+        413,
+      );
+      return;
+    }
+
+    sendError(res, "Invalid resume upload.", "INVALID_FILE_UPLOAD", 400);
+    return;
+  }
 
   if (error instanceof AppError) {
     const message =

@@ -52,3 +52,5 @@ CLAUDE.md
 docker-volumes/
 postgres-data/
 redis-data/
+
+.venv
