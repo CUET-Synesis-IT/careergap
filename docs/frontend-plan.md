@@ -669,10 +669,9 @@ Backend returns:
 ```text
 user
 accessToken
-refreshToken
 ```
 
-Frontend authentication layer stores/handles credentials according to the secure authentication strategy.
+Store the `accessToken` and send it as `Authorization: Bearer <accessToken>` on every authenticated request.
 
 Then:
 
@@ -740,16 +739,10 @@ If unauthenticated:
 public state
 ```
 
-If token refresh is supported:
+If unauthenticated or the token is expired:
 
 ```text
-attempt refresh
-```
-
-If refresh fails:
-
-```text
-logout locally
+clear auth state and remain in public state
 ```
 
 ---
@@ -3034,12 +3027,6 @@ When API returns:
 ```
 
 frontend should:
-
-```text
-attempt token refresh if supported
-```
-
-If refresh fails:
 
 ```text
 clear auth state
