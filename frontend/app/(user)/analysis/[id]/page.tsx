@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { analysisApi } from "@/lib/api/analysis.api";
 import type { AnalysisStatus } from "@/lib/api/types";
 import { AiResultSection } from "@/components/analysis/ai-result-section";
+import { FinalResultSection } from "@/components/analysis/final-result-section";
 import {
   AlertCircle,
   Loader2,
@@ -163,6 +164,17 @@ export default function AnalysisDetailPage() {
         }
       : null);
 
+  // Unified accessor for Final verified result
+  const finalResult =
+    analysis.finalResult ||
+    (analysis.finalMatchPercentage !== null && analysis.finalMatchPercentage !== undefined
+      ? {
+          matchPercentage: analysis.finalMatchPercentage,
+          matchedSkills: analysis.finalMatchedSkills || [],
+          missingSkills: analysis.finalMissingSkills || [],
+        }
+      : null);
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-16">
       {/* Top Navigation & Breadcrumb */}
@@ -313,8 +325,32 @@ export default function AnalysisDetailPage() {
         </section>
       )}
 
-      {/* AI Result Section (once available, e.g. in REVIEW or COMPLETED status) */}
-      {aiResult && (
+      {/* FINAL Verified Result Section (rendered when status is COMPLETED) */}
+      {analysis.status === "COMPLETED" && finalResult && (
+        <FinalResultSection
+          finalMatchPercentage={finalResult.matchPercentage}
+          finalMatchedSkills={finalResult.matchedSkills}
+          finalMissingSkills={finalResult.missingSkills}
+          aiMatchPercentage={aiResult?.matchPercentage}
+          aiMatchedSkills={aiResult?.matchedSkills}
+          aiMissingSkills={aiResult?.missingSkills}
+          career={analysis.career}
+        />
+      )}
+
+      {/* AI Result Section (rendered during REVIEW, or as fallback if completed without finalResult) */}
+      {analysis.status === "REVIEW" && aiResult && (
+        <AiResultSection
+          matchPercentage={aiResult.matchPercentage}
+          matchedSkills={aiResult.matchedSkills}
+          missingSkills={aiResult.missingSkills}
+          extractedSkills={analysis.extractedSkills}
+          career={analysis.career}
+          status={analysis.status}
+        />
+      )}
+
+      {analysis.status === "COMPLETED" && !finalResult && aiResult && (
         <AiResultSection
           matchPercentage={aiResult.matchPercentage}
           matchedSkills={aiResult.matchedSkills}
