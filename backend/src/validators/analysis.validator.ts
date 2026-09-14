@@ -1,11 +1,12 @@
 import { z } from "zod";
 
 export const createAnalysisSchema = z.object({
-  resumeId: z.string().uuid("Invalid resume ID."),
-  careerId: z.string().uuid("Invalid career ID."),
+  resumeId: z.string().uuid(),
+  careerId: z.string().uuid(),
 });
 
-export type CreateAnalysisInput = z.infer<
-  typeof createAnalysisSchema
->;
+export const analysisIdParamsSchema = z.object({
+  id: z.string().uuid(),
+});
 
+export type CreateAnalysisInput = z.infer<typeof createAnalysisSchema>;

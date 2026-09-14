@@ -31,6 +31,72 @@ const analysisResponseSelect = {
 
 const ACTIVE_ANALYSIS_STATUSES = ["PENDING", "PROCESSING", "REVIEW"] as const;
 
+function toAnalysisResponse(analysis: {
+  id: string;
+  status: string;
+  resumeId: string;
+  careerId: string;
+  aiMatchPercentage: number | null;
+  aiMatchedSkills: unknown;
+  aiMissingSkills: unknown;
+  finalMatchPercentage: number | null;
+  finalMatchedSkills: unknown;
+  finalMissingSkills: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+  career: {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+  };
+}): AnalysisResponse {
+  const aiResult =
+    analysis.aiMatchPercentage !== null
+      ? {
+          matchPercentage: analysis.aiMatchPercentage,
+          matchedSkills: extractSkillArray(analysis.aiMatchedSkills),
+          missingSkills: extractSkillArray(analysis.aiMissingSkills),
+        }
+      : null;
+
+  const finalResult =
+    analysis.finalMatchPercentage !== null
+      ? {
+          matchPercentage: analysis.finalMatchPercentage,
+          matchedSkills: extractSkillArray(analysis.finalMatchedSkills),
+          missingSkills: extractSkillArray(analysis.finalMissingSkills),
+        }
+      : null;
+
+  return {
+    id: analysis.id,
+    status: analysis.status as AnalysisResponse["status"],
+    resumeId: analysis.resumeId,
+    careerId: analysis.careerId,
+    career: analysis.career,
+    aiResult,
+    finalResult,
+    createdAt: analysis.createdAt,
+    updatedAt: analysis.updatedAt,
+  };
+}
+
+function extractSkillArray(value: unknown): string[] {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "skills" in value &&
+    Array.isArray(value.skills)
+  ) {
+    return value.skills.filter(
+      (skill): skill is string => typeof skill === "string",
+    );
+  }
+
+  return [];
+}
+
 export async function createAnalysis(
   userId: string,
   resumeId: string,
@@ -252,7 +318,7 @@ export async function createAnalysis(
     );
   }
 
-  return completed as AnalysisResponse;
+  return toAnalysisResponse(completed);
 }
 
 export async function getAnalysisById(
@@ -271,7 +337,7 @@ export async function getAnalysisById(
     throw new AppError("Analysis not found.", 404, "ANALYSIS_NOT_FOUND");
   }
 
-  return analysis as AnalysisResponse;
+  return toAnalysisResponse(analysis);
 }
 
 export async function getUserAnalyses(
@@ -287,5 +353,5 @@ export async function getUserAnalyses(
     },
   });
 
-  return analyses as AnalysisResponse[];
+  return analyses.map(toAnalysisResponse);
 }
