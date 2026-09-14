@@ -77,14 +77,17 @@ export interface ReviewTask {
   id: string;
   status: ReviewTaskStatus;
   analysisId: string;
-  lockedBy?: string | null;
+  lockedById: string | null;
   lockExpiresAt?: string | null;
   completedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
-  career?: {
-    name: string;
-    slug?: string;
+  analysis: {
+    id: string;
+    resumeId: string;
+    careerId: string;
+    aiResult: AnalysisResult | null;
+    career: Career;
   };
 }
 
@@ -263,4 +266,3 @@ export interface ApiErrorPayload {
   message: string;
   code: string;
 }
-

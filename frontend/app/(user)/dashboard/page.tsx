@@ -92,7 +92,7 @@ export default function UserDashboard() {
     queryFn: () => analysisApi.getAll(),
   });
 
-  const analyses: Analysis[] = data?.analyses || [];
+  const analyses: Analysis[] = data || [];
 
   // Summary counts derived strictly from backend analyses
   const totalCount = analyses.length;

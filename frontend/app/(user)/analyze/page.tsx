@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ResumeUploader } from "@/components/analyze/resume-uploader";
 import { CareerSelector } from "@/components/analyze/career-selector";
 import type { Career, Resume } from "@/lib/api/types";
+import { analysisApi } from "@/lib/api/analysis.api";
+import { ApiError } from "@/lib/api/client";
 import {
   FileText,
   Briefcase,
@@ -13,16 +17,34 @@ import {
 } from "lucide-react";
 
 export default function AnalyzePage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [uploadedResume, setUploadedResume] = useState<Resume | null>(null);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   const canStartAnalysis = !!uploadedResume && !!selectedCareer;
 
   const handleStartAnalysis = async () => {
     if (!canStartAnalysis || isStarting) return;
     setIsStarting(true);
-    // Analysis creation API call and polling is wired in Day 4
+    setStartError(null);
+    try {
+      const analysis = await analysisApi.create({
+        resumeId: uploadedResume.id,
+        careerId: selectedCareer.id,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["analyses"] });
+      router.push(`/analysis/${analysis.id}`);
+    } catch (error) {
+      setStartError(
+        error instanceof ApiError
+          ? error.message
+          : "Unable to start the analysis. Please try again.",
+      );
+      setIsStarting(false);
+    }
   };
 
   return (
@@ -155,6 +177,11 @@ export default function AnalyzePage() {
 
       {/* Step 3: Action Bar & Start Analysis */}
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+        {startError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {startError}
+          </div>
+        )}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">

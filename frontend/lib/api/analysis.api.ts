@@ -1,19 +1,16 @@
 import { api } from "@/lib/api/client";
 import type {
+  Analysis,
   CreateAnalysisRequest,
-  CreateAnalysisResponse,
-  GetAnalysesResponse,
-  GetAnalysisResponse,
 } from "@/lib/api/types";
 
 export const analysisApi = {
   create: (data: CreateAnalysisRequest) =>
-    api.post<CreateAnalysisResponse>("/analyses", data),
+    api.post<Analysis>("/analyses", data),
 
   getAll: () =>
-    api.get<GetAnalysesResponse>("/analyses"),
+    api.get<Analysis[]>("/analyses"),
 
   getById: (id: string) =>
-    api.get<GetAnalysisResponse>(`/analyses/${id}`),
+    api.get<Analysis>(`/analyses/${id}`),
 };
-

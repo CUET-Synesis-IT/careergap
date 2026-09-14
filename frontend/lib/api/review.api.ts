@@ -1,23 +1,19 @@
 import { api } from "@/lib/api/client";
 import type {
-  ClaimReviewTaskResponse,
-  GetReviewTaskDetailResponse,
-  GetReviewTasksResponse,
+  ReviewTask,
   SubmitReviewRequest,
-  SubmitReviewResponse,
 } from "@/lib/api/types";
 
 export const reviewApi = {
   getTasks: () =>
-    api.get<GetReviewTasksResponse>("/reviews/tasks"),
+    api.get<ReviewTask[]>("/reviews/tasks"),
 
   claimTask: (id: string) =>
-    api.post<ClaimReviewTaskResponse>(`/reviews/tasks/${id}/claim`),
+    api.post<ReviewTask>(`/reviews/tasks/${id}/claim`),
 
   getTask: (id: string) =>
-    api.get<GetReviewTaskDetailResponse>(`/reviews/tasks/${id}`),
+    api.get<ReviewTask>(`/reviews/tasks/${id}`),
 
   submitReview: (id: string, data: SubmitReviewRequest) =>
-    api.post<SubmitReviewResponse>(`/reviews/tasks/${id}/submit`, data),
+    api.post<void>(`/reviews/tasks/${id}/submit`, data),
 };
-

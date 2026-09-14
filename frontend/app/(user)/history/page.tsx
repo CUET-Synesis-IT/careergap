@@ -75,7 +75,7 @@ export default function HistoryPage() {
     queryFn: () => analysisApi.getAll(),
   });
 
-  const analyses = data?.analyses || [];
+  const analyses = data || [];
 
   return (
     <div className="space-y-6">
