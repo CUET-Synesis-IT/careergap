@@ -63,6 +63,14 @@ export interface Analysis {
   resumeId: string;
   careerId: string;
   career?: Career;
+  resume?: Resume;
+  extractedSkills?: string[] | null;
+  aiMatchPercentage?: number | null;
+  aiMatchedSkills?: string[] | null;
+  aiMissingSkills?: string[] | null;
+  finalMatchPercentage?: number | null;
+  finalMatchedSkills?: string[] | null;
+  finalMissingSkills?: string[] | null;
   aiResult?: AnalysisResult | null;
   finalResult?: AnalysisResult | null;
   createdAt: string;
