@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { analysisApi } from "@/lib/api/analysis.api";
 import type { AnalysisStatus } from "@/lib/api/types";
+import { AiResultSection } from "@/components/analysis/ai-result-section";
 import {
   AlertCircle,
   Loader2,
@@ -162,18 +163,6 @@ export default function AnalysisDetailPage() {
         }
       : null);
 
-  const finalResult =
-    analysis.finalResult ||
-    (analysis.finalMatchPercentage !== null && analysis.finalMatchPercentage !== undefined
-      ? {
-          matchPercentage: analysis.finalMatchPercentage,
-          matchedSkills: analysis.finalMatchedSkills || [],
-          missingSkills: analysis.finalMissingSkills || [],
-        }
-      : null);
-
-  const currentResult = analysis.status === "COMPLETED" ? finalResult : aiResult;
-
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-16">
       {/* Top Navigation & Breadcrumb */}
@@ -324,73 +313,16 @@ export default function AnalysisDetailPage() {
         </section>
       )}
 
-      {/* Preliminary Results view while waiting for Task 3 & Task 4 */}
-      {(analysis.status === "REVIEW" || analysis.status === "COMPLETED") && currentResult && (
-        <div className="space-y-6">
-          <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  {analysis.status === "COMPLETED"
-                    ? "Verified Match Score"
-                    : "Initial AI Match Score"}
-                </span>
-                <p className="mt-1 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-                  {currentResult.matchPercentage}%
-                </p>
-              </div>
-              {analysis.status === "REVIEW" && (
-                <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
-                  Pending Human Verification
-                </span>
-              )}
-            </div>
-          </section>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                Matched Skills ({currentResult.matchedSkills.length})
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {currentResult.matchedSkills.length > 0 ? (
-                  currentResult.matchedSkills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/60"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-xs text-zinc-500">No matched skills reported</span>
-                )}
-              </div>
-            </section>
-
-            <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-amber-600" />
-                Missing Skills ({currentResult.missingSkills.length})
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {currentResult.missingSkills.length > 0 ? (
-                  currentResult.missingSkills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-xs text-zinc-500">No missing skills reported</span>
-                )}
-              </div>
-            </section>
-          </div>
-        </div>
+      {/* AI Result Section (once available, e.g. in REVIEW or COMPLETED status) */}
+      {aiResult && (
+        <AiResultSection
+          matchPercentage={aiResult.matchPercentage}
+          matchedSkills={aiResult.matchedSkills}
+          missingSkills={aiResult.missingSkills}
+          extractedSkills={analysis.extractedSkills}
+          career={analysis.career}
+          status={analysis.status}
+        />
       )}
     </div>
   );
