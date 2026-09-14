@@ -10,8 +10,20 @@ export interface CareerProfileGenerationResult {
   }>;
 }
 
+export interface ResumeSkillExtractionInput {
+  resumeText: string;
+}
+
+export interface ResumeSkillExtractionResult {
+  skills: string[];
+}
+
 export interface AIProvider {
   generateCareerProfile(
     input: CareerProfileGenerationInput,
   ): Promise<CareerProfileGenerationResult>;
+
+  extractResumeSkills(
+    input: ResumeSkillExtractionInput,
+  ): Promise<ResumeSkillExtractionResult>;
 }
