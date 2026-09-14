@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ResumeUploader } from "@/components/analyze/resume-uploader";
@@ -14,6 +15,8 @@ import {
   Play,
   Check,
   Info,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 
 export default function AnalyzePage() {
@@ -23,6 +26,7 @@ export default function AnalyzePage() {
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
   const canStartAnalysis = !!uploadedResume && !!selectedCareer;
 
@@ -30,19 +34,54 @@ export default function AnalyzePage() {
     if (!canStartAnalysis || isStarting) return;
     setIsStarting(true);
     setStartError(null);
+    setIsDuplicate(false);
     try {
-      const analysis = await analysisApi.create({
+      const response = await analysisApi.create({
         resumeId: uploadedResume.id,
         careerId: selectedCareer.id,
       });
+
+      // Safely support both direct { id, ... } or wrapped { analysis: { id, ... } } response envelopes
+      const targetId =
+        (response as unknown as { id?: string; analysis?: { id: string } })?.id ||
+        (response as unknown as { id?: string; analysis?: { id: string } })?.analysis?.id;
+
+      if (!targetId) {
+        throw new Error("Unable to identify created analysis record.");
+      }
+
       await queryClient.invalidateQueries({ queryKey: ["analyses"] });
-      router.push(`/analysis/${analysis.id}`);
+      router.push(`/analysis/${targetId}`);
     } catch (error) {
-      setStartError(
-        error instanceof ApiError
-          ? error.message
-          : "Unable to start the analysis. Please try again.",
-      );
+      if (error instanceof ApiError) {
+        if (error.status === 409 || error.code === "DUPLICATE_ANALYSIS") {
+          setIsDuplicate(true);
+          setStartError(
+            error.message ||
+              "An active analysis is already in progress for this resume and career combination.",
+          );
+        } else if (error.status === 400 || error.code === "VALIDATION_ERROR") {
+          setStartError(
+            error.message ||
+              "Invalid resume or career selection. Please check your inputs and try again.",
+          );
+        } else if (error.status === 404) {
+          setStartError(
+            error.message ||
+              "The selected resume or career could not be found. Please refresh and try again.",
+          );
+        } else if (error.status >= 500) {
+          setStartError(
+            "A server error occurred while starting the analysis. Please try again later.",
+          );
+        } else {
+          setStartError(error.message || "Unable to start the analysis. Please try again.");
+        }
+      } else if (error instanceof Error) {
+        setStartError(error.message);
+      } else {
+        setStartError("Unable to connect to the server. Please check your connection.");
+      }
       setIsStarting(false);
     }
   };
@@ -178,8 +217,21 @@ export default function AnalyzePage() {
       {/* Step 3: Action Bar & Start Analysis */}
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
         {startError && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-            {startError}
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            <AlertCircle className="h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+            <div className="flex-1">
+              <p className="font-medium">{startError}</p>
+              {isDuplicate && (
+                <p className="mt-2 text-xs">
+                  <Link
+                    href="/dashboard"
+                    className="font-semibold underline hover:text-red-900 dark:hover:text-red-200"
+                  >
+                    View your existing analyses on Dashboard &rarr;
+                  </Link>
+                </p>
+              )}
+            </div>
           </div>
         )}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -203,11 +255,14 @@ export default function AnalyzePage() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {isStarting ? (
-              "Starting analysis..."
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Starting analysis...</span>
+              </>
             ) : (
               <>
                 <Play className="h-4 w-4 fill-current" />
-                Start Analysis
+                <span>Start Analysis</span>
               </>
             )}
           </button>
