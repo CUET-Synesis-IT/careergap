@@ -293,6 +293,44 @@ describe("Review Task Locking", () => {
     );
   });
 
+  it("allows exactly one reviewer to claim a task under concurrent requests", async () => {
+    const task = await createOpenReviewTask();
+
+    const reviewerOne = await createReviewer("Reviewer One");
+    const reviewerTwo = await createReviewer("Reviewer Two");
+
+    const results = await Promise.allSettled([
+      claimReviewTask(task.id, reviewerOne.id),
+      claimReviewTask(task.id, reviewerTwo.id),
+    ]);
+
+    const fulfilled = results.filter((result) => result.status === "fulfilled");
+
+    const rejected = results.filter((result) => result.status === "rejected");
+
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+
+    const successfulClaim = fulfilled[0];
+
+    if (successfulClaim.status === "fulfilled") {
+      expect(successfulClaim.value.status).toBe("LOCKED");
+      expect([reviewerOne.id, reviewerTwo.id]).toContain(
+        successfulClaim.value.lockedById,
+      );
+    }
+
+    const savedTask = await prisma.reviewTask.findUnique({
+      where: {
+        id: task.id,
+      },
+    });
+
+    expect(savedTask?.status).toBe("LOCKED");
+
+    expect([reviewerOne.id, reviewerTwo.id]).toContain(savedTask?.lockedById);
+  });
+
   it("allows another reviewer to reclaim an expired lock", async () => {
     const task = await createOpenReviewTask();
 
