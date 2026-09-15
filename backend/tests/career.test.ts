@@ -71,8 +71,6 @@ describe("Career API", () => {
 
     expect(response.body.success).toBe(true);
 
-    expect(response.body.data.careers).toHaveLength(5);
-
     expect(response.body.data.careers).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

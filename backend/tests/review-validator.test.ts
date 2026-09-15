@@ -71,6 +71,7 @@ describe("Submit Review Validator", () => {
   });
 
   it("rejects missing finalMatchPercentage", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { finalMatchPercentage: _ignored, ...withoutPercentage } = validInput;
 
     const result = submitReviewSchema.safeParse(withoutPercentage);
@@ -79,6 +80,7 @@ describe("Submit Review Validator", () => {
   });
 
   it("rejects missing finalMatchedSkills", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { finalMatchedSkills: _ignored, ...withoutMatchedSkills } =
       validInput;
 
@@ -88,6 +90,7 @@ describe("Submit Review Validator", () => {
   });
 
   it("rejects missing finalMissingSkills", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { finalMissingSkills: _ignored, ...withoutMissingSkills } =
       validInput;
 

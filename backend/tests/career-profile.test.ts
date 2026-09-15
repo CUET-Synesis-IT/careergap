@@ -16,7 +16,6 @@ import {
 import { prisma } from "../src/config/database";
 import { connectRedis, disconnectRedis, redis } from "../src/config/redis";
 import {
-  deleteCachedCareerProfile,
   getCachedCareerProfile,
   getCareerProfileCacheKey,
 } from "../src/cache/career-cache";

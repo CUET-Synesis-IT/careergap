@@ -29,6 +29,7 @@ export const errorMiddleware: ErrorRequestHandler = (
   error: unknown,
   _req,
   res,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next,
 ) => {
   console.error(error);
@@ -50,25 +51,12 @@ export const errorMiddleware: ErrorRequestHandler = (
 
   if (error instanceof AppError) {
     const message =
-      error.statusCode >= 500
-        ? "An unexpected error occurred."
-        : error.message;
+      error.statusCode >= 500 ? "An unexpected error occurred." : error.message;
 
-    sendError(
-      res,
-      message,
-      error.code,
-      error.statusCode,
-      error.details,
-    );
+    sendError(res, message, error.code, error.statusCode, error.details);
 
     return;
   }
 
-  sendError(
-    res,
-    "An unexpected error occurred.",
-    "INTERNAL_SERVER_ERROR",
-    500,
-  );
+  sendError(res, "An unexpected error occurred.", "INTERNAL_SERVER_ERROR", 500);
 };
