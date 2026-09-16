@@ -15,7 +15,7 @@ function useIsClient() {
   return useSyncExternalStore(
     emptySubscribe,
     () => true,
-    () => false
+    () => false,
   );
 }
 
@@ -34,7 +34,7 @@ export function MatchGaugeChart({
 }: MatchGaugeChartProps) {
   const isMounted = useIsClient();
 
-  const clampedPercentage = Math.max(0, Math.min(100, Math.round(percentage * 10) / 10));
+  const clampedPercentage = Math.max(0, Math.min(100, percentage));
   const remaining = Math.max(0, 100 - clampedPercentage);
   const activeColor = getMatchColor(clampedPercentage);
 
@@ -52,7 +52,7 @@ export function MatchGaugeChart({
       >
         <div className="flex flex-col items-center justify-center text-center">
           <span className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            {clampedPercentage}%
+            {clampedPercentage.toFixed(1)}%
           </span>
           <span className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
             {label}
@@ -82,7 +82,11 @@ export function MatchGaugeChart({
             stroke="none"
           >
             <Cell key="matched" fill={activeColor} />
-            <Cell key="remaining" fill="#e4e4e7" className="dark:fill-zinc-800" />
+            <Cell
+              key="remaining"
+              fill="#e4e4e7"
+              className="dark:fill-zinc-800"
+            />
           </Pie>
         </PieChart>
       </ResponsiveContainer>
@@ -90,7 +94,7 @@ export function MatchGaugeChart({
       {/* Center Label */}
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-          {clampedPercentage}%
+          {clampedPercentage.toFixed(1)}%
         </span>
         <span className="mt-0.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
           {label}

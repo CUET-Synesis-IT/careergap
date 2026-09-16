@@ -17,11 +17,21 @@ import {
 
 interface FinalResultSectionProps {
   finalMatchPercentage: number;
-  finalMatchedSkills: (string | { name: string; importance?: SkillImportance })[];
-  finalMissingSkills: (string | { name: string; importance?: SkillImportance })[];
+  finalMatchedSkills: (
+    | string
+    | { name: string; importance?: SkillImportance }
+  )[];
+  finalMissingSkills: (
+    | string
+    | { name: string; importance?: SkillImportance }
+  )[];
   aiMatchPercentage?: number | null;
-  aiMatchedSkills?: (string | { name: string; importance?: SkillImportance })[] | null;
-  aiMissingSkills?: (string | { name: string; importance?: SkillImportance })[] | null;
+  aiMatchedSkills?:
+    | (string | { name: string; importance?: SkillImportance })[]
+    | null;
+  aiMissingSkills?:
+    | (string | { name: string; importance?: SkillImportance })[]
+    | null;
   career?: Career;
 }
 
@@ -31,7 +41,8 @@ function resolveSkill(
 ): { name: string; importance?: SkillImportance } {
   if (typeof item === "object" && item !== null && "name" in item) {
     const rawName = item.name;
-    const importance = item.importance || importanceMap.get(rawName.trim().toLowerCase());
+    const importance =
+      item.importance || importanceMap.get(rawName.trim().toLowerCase());
     return { name: rawName, importance };
   }
 
@@ -110,11 +121,15 @@ export function FinalResultSection({
     [aiMissingSkills, importanceMap],
   );
 
+  const roundedFinalMatch = finalMatchPercentage;
+  const roundedAiMatch =
+    aiMatchPercentage !== null && aiMatchPercentage !== undefined
+      ? aiMatchPercentage
+      : null;
+
   // Score delta between human verified and original AI
   const scoreDelta =
-    aiMatchPercentage !== null && aiMatchPercentage !== undefined
-      ? Math.round((finalMatchPercentage - aiMatchPercentage) * 10) / 10
-      : null;
+    roundedAiMatch !== null ? roundedFinalMatch - roundedAiMatch : null;
 
   return (
     <div className="space-y-8">
@@ -133,8 +148,9 @@ export function FinalResultSection({
               </span>
             </div>
             <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed max-w-3xl">
-              This analysis has been reviewed, validated, and finalized by a verified expert reviewer.
-              The scores and skill classifications below represent your official completed assessment.
+              This analysis has been reviewed, validated, and finalized by a
+              verified expert reviewer. The scores and skill classifications
+              below represent your official completed assessment.
             </p>
           </div>
         </div>
@@ -146,7 +162,7 @@ export function FinalResultSection({
           {/* Recharts Gauge Chart */}
           <div className="flex flex-col items-center">
             <MatchGaugeChart
-              percentage={finalMatchPercentage}
+              percentage={roundedFinalMatch}
               label="Final Verified"
               size={190}
             />
@@ -180,20 +196,21 @@ export function FinalResultSection({
                 <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
                   <Sparkles className="h-4 w-4 text-blue-500" />
                   <span>
-                    Initial AI score was <strong>{aiMatchPercentage}%</strong>
+                    Initial AI score was{" "}
+                    <strong>{roundedAiMatch.toFixed(1)}%</strong>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-1 text-xs font-semibold">
                   {scoreDelta > 0 ? (
                     <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400">
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      +{scoreDelta}% improvement
+                      <TrendingUp className="h-3.5 w-3.5" />+
+                      {scoreDelta.toFixed(1)}% improvement
                     </span>
                   ) : scoreDelta < 0 ? (
                     <span className="inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-400">
                       <TrendingDown className="h-3.5 w-3.5" />
-                      {scoreDelta}% calibrated
+                      {scoreDelta.toFixed(1)}% calibrated
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-0.5 text-zinc-500">
@@ -217,7 +234,9 @@ export function FinalResultSection({
               <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               Verified Matched Skills ({parsedFinalMatched.length})
             </h3>
-            <span className="text-[11px] text-zinc-400">Approved by reviewer</span>
+            <span className="text-[11px] text-zinc-400">
+              Approved by reviewer
+            </span>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
@@ -272,7 +291,8 @@ export function FinalResultSection({
               ))
             ) : (
               <p className="text-xs text-zinc-500 py-2">
-                Congratulations! You meet all required skills verified for this role.
+                Congratulations! You meet all required skills verified for this
+                role.
               </p>
             )}
           </div>
@@ -280,7 +300,7 @@ export function FinalResultSection({
       </div>
 
       {/* Optional Accordion: View Original AI Assessment Baseline */}
-      {aiMatchPercentage !== null && aiMatchPercentage !== undefined && (
+      {roundedAiMatch !== null && (
         <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 dark:border-zinc-800 dark:bg-zinc-900/40 overflow-hidden">
           <button
             type="button"
@@ -289,7 +309,9 @@ export function FinalResultSection({
           >
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-blue-500" />
-              <span>Original AI Baseline Assessment ({aiMatchPercentage}%)</span>
+              <span>
+                Original AI Baseline Assessment ({roundedAiMatch.toFixed(1)}%)
+              </span>
             </div>
             {showAiBaseline ? (
               <ChevronUp className="h-4 w-4 text-zinc-400" />
@@ -301,7 +323,8 @@ export function FinalResultSection({
           {showAiBaseline && (
             <div className="px-5 pb-5 pt-2 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
               <p className="text-xs text-zinc-500">
-                Initial evaluation produced automatically by the AI model prior to human reviewer verification.
+                Initial evaluation produced automatically by the AI model prior
+                to human reviewer verification.
               </p>
               <div className="grid gap-4 sm:grid-cols-2 text-xs">
                 <div className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
@@ -343,4 +366,3 @@ export function FinalResultSection({
     </div>
   );
 }
-
