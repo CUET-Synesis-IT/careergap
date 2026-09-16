@@ -94,6 +94,7 @@ export interface ReviewTask {
     id: string;
     resumeId: string;
     careerId: string;
+    extractedSkills?: string[] | null;
     aiResult: AnalysisResult | null;
     career: Career;
   };
