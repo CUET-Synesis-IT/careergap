@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -170,6 +171,36 @@ async function main() {
       create: career,
     });
   }
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be set.");
+  }
+
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
+
+  await prisma.user.upsert({
+    where: {
+      email: adminEmail.toLowerCase(),
+    },
+    update: {
+      name: "Super Admin",
+      passwordHash,
+      role: "SUPER_ADMIN",
+      isActive: true,
+    },
+    create: {
+      name: "Super Admin",
+      email: adminEmail.toLowerCase(),
+      passwordHash,
+      role: "SUPER_ADMIN",
+      isActive: true,
+    },
+  });
+
+  console.log("Seeded Super Admin.");
 
   console.log(`Seeded ${careers.length} careers.`);
 }

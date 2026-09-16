@@ -57,11 +57,17 @@ function getStatusBadge(status: AnalysisStatus) {
 }
 
 function getMatchScore(analysis: Analysis): string {
-  if (analysis.status === "COMPLETED" && analysis.finalResult?.matchPercentage != null) {
-    return `${analysis.finalResult.matchPercentage}%`;
+  if (
+    analysis.status === "COMPLETED" &&
+    analysis.finalResult?.matchPercentage != null
+  ) {
+    return `${analysis.finalResult.matchPercentage.toFixed(1)}%`;
   }
-  if (analysis.status === "REVIEW" && analysis.aiResult?.matchPercentage != null) {
-    return `${analysis.aiResult.matchPercentage}% (AI)`;
+  if (
+    analysis.status === "REVIEW" &&
+    analysis.aiResult?.matchPercentage != null
+  ) {
+    return `${analysis.aiResult.matchPercentage.toFixed(1)}% (AI)`;
   }
   return "—";
 }
@@ -82,12 +88,7 @@ function formatDate(dateStr: string): string {
 export default function UserDashboard() {
   const { user } = useAuth();
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["analyses"],
     queryFn: () => analysisApi.getAll(),
   });
@@ -96,10 +97,12 @@ export default function UserDashboard() {
 
   // Summary counts derived strictly from backend analyses
   const totalCount = analyses.length;
-  const completedCount = analyses.filter((a) => a.status === "COMPLETED").length;
+  const completedCount = analyses.filter(
+    (a) => a.status === "COMPLETED",
+  ).length;
   const inReviewCount = analyses.filter((a) => a.status === "REVIEW").length;
   const processingCount = analyses.filter(
-    (a) => a.status === "PROCESSING" || a.status === "PENDING"
+    (a) => a.status === "PROCESSING" || a.status === "PENDING",
   ).length;
 
   const latestAnalysis = analyses.length > 0 ? analyses[0] : null;
@@ -113,7 +116,8 @@ export default function UserDashboard() {
             Welcome, {user?.name || "User"}
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Upload your resume and discover how well your skills match your target career.
+            Upload your resume and discover how well your skills match your
+            target career.
           </p>
         </div>
         <Link
@@ -129,7 +133,9 @@ export default function UserDashboard() {
       {isLoading && (
         <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
-          <p className="mt-4 text-sm text-zinc-500">Loading your dashboard...</p>
+          <p className="mt-4 text-sm text-zinc-500">
+            Loading your dashboard...
+          </p>
         </div>
       )}
 
@@ -162,7 +168,8 @@ export default function UserDashboard() {
                 You haven&apos;t analyzed a resume yet.
               </h3>
               <p className="mt-1.5 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
-                Upload your resume and compare your skills with a career you&apos;re interested in.
+                Upload your resume and compare your skills with a career
+                you&apos;re interested in.
               </p>
               <Link
                 href="/analyze"
@@ -177,22 +184,36 @@ export default function UserDashboard() {
               {/* Summary Metrics */}
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Analyses</p>
-                  <p className="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100">{totalCount}</p>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Total Analyses
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                    {totalCount}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Completed</p>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Completed
+                  </p>
                   <p className="mt-2 text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                     {completedCount}
                   </p>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">In Review</p>
-                  <p className="mt-2 text-3xl font-bold text-amber-600 dark:text-amber-400">{inReviewCount}</p>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    In Review
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-amber-600 dark:text-amber-400">
+                    {inReviewCount}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Processing</p>
-                  <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">{processingCount}</p>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Processing
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    {processingCount}
+                  </p>
                 </div>
               </div>
 
@@ -232,8 +253,8 @@ export default function UserDashboard() {
                         {latestAnalysis.status === "COMPLETED"
                           ? "View Final Result"
                           : latestAnalysis.status === "REVIEW"
-                          ? "View Initial Result"
-                          : "View Analysis"}
+                            ? "View Initial Result"
+                            : "View Analysis"}
                         <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
                     </div>
@@ -259,7 +280,9 @@ export default function UserDashboard() {
                         <p className="font-semibold text-zinc-900 dark:text-zinc-100">
                           {item.career?.name || "Engineering Career"}
                         </p>
-                        <p className="text-xs text-zinc-500">Created: {formatDate(item.createdAt)}</p>
+                        <p className="text-xs text-zinc-500">
+                          Created: {formatDate(item.createdAt)}
+                        </p>
                       </div>
 
                       <div className="flex items-center gap-6">

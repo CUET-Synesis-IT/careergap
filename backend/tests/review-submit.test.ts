@@ -247,7 +247,7 @@ describe("Review Submission", () => {
   });
 
   it("creates a Review containing the original AI result", async () => {
-    const { reviewer, analysis, task } = await createReviewTask();
+    const { reviewer, task } = await createReviewTask();
 
     await claimTask(task.id, reviewer.id);
 

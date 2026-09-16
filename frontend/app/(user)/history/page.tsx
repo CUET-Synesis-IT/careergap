@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { analysisApi } from "@/lib/api/analysis.api";
 import type { Analysis, AnalysisStatus } from "@/lib/api/types";
-import { FileText, Loader2, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import {
+  FileText,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 
 function getStatusBadge(status: AnalysisStatus) {
   switch (status) {
@@ -47,11 +53,17 @@ function getStatusBadge(status: AnalysisStatus) {
 }
 
 function getMatchScore(analysis: Analysis): string {
-  if (analysis.status === "COMPLETED" && analysis.finalResult?.matchPercentage != null) {
-    return `${analysis.finalResult.matchPercentage}%`;
+  if (
+    analysis.status === "COMPLETED" &&
+    analysis.finalResult?.matchPercentage != null
+  ) {
+    return `${analysis.finalResult.matchPercentage.toFixed(1)}%`;
   }
-  if (analysis.status === "REVIEW" && analysis.aiResult?.matchPercentage != null) {
-    return `${analysis.aiResult.matchPercentage}% (AI)`;
+  if (
+    analysis.status === "REVIEW" &&
+    analysis.aiResult?.matchPercentage != null
+  ) {
+    return `${analysis.aiResult.matchPercentage.toFixed(1)}% (AI)`;
   }
   return "—";
 }
@@ -113,7 +125,9 @@ export default function HistoryPage() {
           {analyses.length === 0 ? (
             <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
               <FileText className="h-10 w-10 text-zinc-400 mb-3" />
-              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">No analyses found</h3>
+              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                No analyses found
+              </h3>
               <p className="text-sm text-zinc-500 mt-1 max-w-sm">
                 You haven&apos;t analyzed any resumes yet.
               </p>
@@ -136,7 +150,9 @@ export default function HistoryPage() {
                       <p className="font-semibold text-zinc-900 dark:text-zinc-100">
                         {item.career?.name || "Career Analysis"}
                       </p>
-                      <p className="text-xs text-zinc-500">Date: {formatDate(item.createdAt)}</p>
+                      <p className="text-xs text-zinc-500">
+                        Date: {formatDate(item.createdAt)}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-6">
