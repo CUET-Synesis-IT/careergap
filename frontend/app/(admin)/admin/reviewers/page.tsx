@@ -7,11 +7,13 @@ import { ApiError } from "@/lib/api/client";
 import type { Reviewer } from "@/lib/api/types";
 import {
   AlertCircle,
+  CheckCircle2,
   Clock,
   Loader2,
   Mail,
   Plus,
   RefreshCw,
+  ShieldAlert,
   ShieldCheck,
   UserCheck,
   Users,
@@ -34,14 +36,22 @@ function formatDate(dateStr: string) {
 
 export default function AdminReviewersPage() {
   const queryClient = useQueryClient();
+
+  // Add Reviewer Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [formError, setFormError] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Deactivate Confirmation Modal State
+  const [deactivateTarget, setDeactivateTarget] = useState<Reviewer | null>(null);
+
+  // Reviewers Query
   const {
     data,
     isLoading,
@@ -54,33 +64,79 @@ export default function AdminReviewersPage() {
     queryFn: () => adminApi.getReviewers(),
   });
 
+  // Create Reviewer Mutation (structurally incapable of creating SUPER_ADMIN)
   const createMutation = useMutation({
-    mutationFn: (newReviewer: typeof formData) => adminApi.createReviewer(newReviewer),
+    mutationFn: (newReviewer: { name: string; email: string; password: string }) =>
+      adminApi.createReviewer(newReviewer),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "reviewers"] });
       setIsModalOpen(false);
-      setFormData({ name: "", email: "", password: "" });
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
       setFormError("");
+      setSuccessMessage("Reviewer created successfully.");
+      setTimeout(() => setSuccessMessage(null), 5000);
     },
     onError: (err) => {
-      setFormError(
-        err instanceof ApiError ? err.message : "Failed to create reviewer"
-      );
+      if (err instanceof ApiError && err.status === 409) {
+        setFormError("A user with this email already exists.");
+      } else if (err instanceof ApiError) {
+        setFormError(err.message || "Failed to create reviewer");
+      } else {
+        setFormError("Failed to create reviewer. Please check your inputs.");
+      }
     },
   });
 
+  // Activate / Deactivate Mutation
   const toggleMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       adminApi.updateReviewer(id, { isActive }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "reviewers"] });
+      setDeactivateTarget(null);
     },
   });
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
-    createMutation.mutate(formData);
+
+    if (!formData.name.trim()) {
+      setFormError("Full name is required.");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setFormError("Email address is required.");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setFormError("Temporary password must be at least 8 characters long.");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setFormError("Passwords do not match. Please re-enter.");
+      return;
+    }
+
+    // Explicitly send only name, email, and password (role is fixed to REVIEWER on backend)
+    createMutation.mutate({
+      name: formData.name.trim(),
+      email: formData.email.trim().toLowerCase(),
+      password: formData.password,
+    });
+  };
+
+  const handleToggleClick = (reviewer: Reviewer) => {
+    if (reviewer.isActive) {
+      // Require confirmation before deactivating
+      setDeactivateTarget(reviewer);
+    } else {
+      // Direct activation
+      toggleMutation.mutate({ id: reviewer.id, isActive: true });
+    }
   };
 
   const reviewers: Reviewer[] = Array.isArray(data)
@@ -131,6 +187,22 @@ export default function AdminReviewersPage() {
           </button>
         </div>
       </div>
+
+      {/* Success Notification Banner */}
+      {successMessage && (
+        <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <span className="font-medium">{successMessage}</span>
+          </div>
+          <button
+            onClick={() => setSuccessMessage(null)}
+            className="rounded p-1 text-emerald-600 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -344,12 +416,7 @@ export default function AdminReviewersPage() {
                       <td className="whitespace-nowrap px-5 py-4 text-right">
                         <button
                           type="button"
-                          onClick={() =>
-                            toggleMutation.mutate({
-                              id: reviewer.id,
-                              isActive: !reviewer.isActive,
-                            })
-                          }
+                          onClick={() => handleToggleClick(reviewer)}
                           disabled={isPending}
                           className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
                             reviewer.isActive
@@ -390,6 +457,7 @@ export default function AdminReviewersPage() {
                 Add New Reviewer
               </h2>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="rounded p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
@@ -406,7 +474,7 @@ export default function AdminReviewersPage() {
               </div>
             )}
 
-            <form onSubmit={handleCreate} className="mt-4 space-y-4">
+            <form onSubmit={handleCreateSubmit} className="mt-4 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                   Full Name
@@ -419,7 +487,7 @@ export default function AdminReviewersPage() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-100"
-                  placeholder="e.g. Sarah Connor"
+                  placeholder="e.g. Alex Morgan"
                 />
               </div>
 
@@ -446,13 +514,30 @@ export default function AdminReviewersPage() {
                 <input
                   type="password"
                   required
-                  minLength={6}
+                  minLength={8}
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
                   className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-100"
-                  placeholder="Min 6 characters"
+                  placeholder="At least 8 characters"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
+                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-100"
+                  placeholder="Confirm temporary password"
                 />
               </div>
 
@@ -473,10 +558,62 @@ export default function AdminReviewersPage() {
                   {createMutation.isPending && (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   )}
-                  Create Reviewer
+                  <span>Create Reviewer</span>
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Deactivate Reviewer Confirmation Modal */}
+      {deactivateTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-red-100 p-2 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+                <ShieldAlert className="h-6 w-6" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  Deactivate this reviewer?
+                </h2>
+                <p className="mt-1.5 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  Are you sure you want to deactivate{" "}
+                  <strong className="text-zinc-900 dark:text-zinc-100">
+                    {deactivateTarget.name}
+                  </strong>{" "}
+                  ({deactivateTarget.email})? They will no longer be able to claim new review tasks or log in.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setDeactivateTarget(null)}
+                disabled={toggleMutation.isPending}
+                className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  toggleMutation.mutate({
+                    id: deactivateTarget.id,
+                    isActive: false,
+                  })
+                }
+                disabled={toggleMutation.isPending}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition"
+              >
+                {toggleMutation.isPending && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                )}
+                <span>Deactivate Reviewer</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
