@@ -191,7 +191,7 @@ export function FinalResultSection({
             </div>
 
             {/* AI Comparison Badge */}
-            {scoreDelta !== null && (
+            {scoreDelta !== null && roundedAiMatch !== null && (
               <div className="col-span-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 dark:border-zinc-800 dark:bg-zinc-800/60 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
                   <Sparkles className="h-4 w-4 text-blue-500" />
