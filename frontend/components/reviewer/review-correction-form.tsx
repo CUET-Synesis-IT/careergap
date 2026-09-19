@@ -91,10 +91,10 @@ export function ReviewCorrectionForm({
     onError: (err: unknown) => {
       if (
         err instanceof ApiError &&
-        (err.status === 409 &&
-          (err.code === "REVIEW_LOCK_EXPIRED" ||
-            err.code === "REVIEW_TASK_LOCK_EXPIRED" ||
-            err.message.toLowerCase().includes("expired")))
+        err.status === 409 &&
+        (err.code === "REVIEW_LOCK_EXPIRED" ||
+          err.code === "REVIEW_TASK_LOCK_EXPIRED" ||
+          err.message.toLowerCase().includes("expired"))
       ) {
         setSubmitError({
           isExpired: true,
@@ -144,7 +144,8 @@ export function ReviewCorrectionForm({
               Human Reviewer Decision
             </h2>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Pre-filled with AI recommendations. Correct or update the final evaluation below.
+              Pre-filled with AI recommendations. Correct or update the final
+              evaluation below.
             </p>
           </div>
         </div>
@@ -174,7 +175,9 @@ export function ReviewCorrectionForm({
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
               <p className="font-semibold">
-                {submitError.isExpired ? "Review Lock Expired" : "Submission Failed"}
+                {submitError.isExpired
+                  ? "Review Lock Expired"
+                  : "Submission Failed"}
               </p>
               <p className="mt-0.5 text-xs">{submitError.message}</p>
             </div>
@@ -196,7 +199,8 @@ export function ReviewCorrectionForm({
         <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
           <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
           <span>
-            Lock expired: You can no longer submit this review. Please return to the queue to reclaim the task.
+            Lock expired: You can no longer submit this review. Please return to
+            the queue to reclaim the task.
           </span>
         </div>
       )}
@@ -210,14 +214,15 @@ export function ReviewCorrectionForm({
           Final Verified Match Percentage (0 – 100)
         </label>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-          The verified percentage match score between candidate profile and career requirements.
+          The verified percentage match score between candidate profile and
+          career requirements.
         </p>
 
         <div className="mt-2 flex items-center gap-2">
           <input
             id="finalMatchPercentage"
             type="number"
-            step="0.1"
+            step="any"
             min="0"
             max="100"
             disabled={isDisabled}
@@ -277,7 +282,8 @@ export function ReviewCorrectionForm({
           <span className="font-normal text-zinc-500">(Optional)</span>
         </label>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-          Provide any context or justification for adjustments made to the AI evaluation (max 2,000 chars).
+          Provide any context or justification for adjustments made to the AI
+          evaluation (max 2,000 chars).
         </p>
 
         <textarea
