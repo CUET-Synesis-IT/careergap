@@ -3,7 +3,7 @@ FROM node:20-slim
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
 # We can provide a dummy URL for build time if necessary, but typically Next.js standalone build is best if configured.
