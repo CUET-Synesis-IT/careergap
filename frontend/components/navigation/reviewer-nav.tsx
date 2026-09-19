@@ -18,7 +18,7 @@ export function ReviewerNav() {
 
   const navItems = [
     { label: "Review Queue", href: "/reviewer/tasks", icon: ListChecks },
-    { label: "My Current Review", href: "/reviewer/current", icon: Clock },
+    { label: "Review Queue", href: "/reviewer/tasks", icon: Clock },
     { label: "Account", href: "/reviewer/account", icon: User },
   ];
 
