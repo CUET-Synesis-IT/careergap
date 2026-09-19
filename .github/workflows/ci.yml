@@ -46,7 +46,7 @@ jobs:
       NODE_ENV: test
       DATABASE_URL: postgresql://careergap:careergap@localhost:5432/careergap_test
       REDIS_URL: redis://localhost:6379
-      JWT_SECRET: ci-test-secret
+      JWT_SECRET: ci-test-secret-careergap-github-actions-2026
       JWT_EXPIRES_IN: 1h
       CORS_ORIGIN: http://localhost:3000
       AI_PROVIDER: gemini
