@@ -40,10 +40,14 @@ export function AiReferenceSection({
       {/* Match Score Display */}
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-zinc-200/80 bg-zinc-50/60 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
-          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">AI Match Percentage</p>
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            AI Match Percentage
+          </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="font-mono text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-              {matchPercentage !== null ? `${matchPercentage.toFixed(1)}%` : "—"}
+              {matchPercentage !== null
+                ? `${matchPercentage.toFixed(2)}%`
+                : "—"}
             </span>
           </div>
           {matchPercentage !== null && (
@@ -56,14 +60,18 @@ export function AiReferenceSection({
                       ? "bg-amber-500"
                       : "bg-red-500"
                 }`}
-                style={{ width: `${Math.min(100, Math.max(0, matchPercentage))}%` }}
+                style={{
+                  width: `${Math.min(100, Math.max(0, matchPercentage))}%`,
+                }}
               />
             </div>
           )}
         </div>
 
         <div className="rounded-lg border border-emerald-200/70 bg-emerald-50/40 p-4 dark:border-emerald-950/60 dark:bg-emerald-950/20">
-          <p className="text-xs font-medium text-emerald-800 dark:text-emerald-300">AI Matched Skills</p>
+          <p className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
+            AI Matched Skills
+          </p>
           <p className="mt-2 font-mono text-3xl font-bold tracking-tight text-emerald-900 dark:text-emerald-200">
             {matchedSkills.length}
           </p>
@@ -73,7 +81,9 @@ export function AiReferenceSection({
         </div>
 
         <div className="rounded-lg border border-rose-200/70 bg-rose-50/40 p-4 dark:border-rose-950/60 dark:bg-rose-950/20">
-          <p className="text-xs font-medium text-rose-800 dark:text-rose-300">AI Missing Skills</p>
+          <p className="text-xs font-medium text-rose-800 dark:text-rose-300">
+            AI Missing Skills
+          </p>
           <p className="mt-2 font-mono text-3xl font-bold tracking-tight text-rose-900 dark:text-rose-200">
             {missingSkills.length}
           </p>
@@ -92,7 +102,9 @@ export function AiReferenceSection({
             Matched Skills ({matchedSkills.length})
           </h3>
           {matchedSkills.length === 0 ? (
-            <p className="text-xs italic text-zinc-400">No matched skills identified by AI.</p>
+            <p className="text-xs italic text-zinc-400">
+              No matched skills identified by AI.
+            </p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {matchedSkills.map((skill, index) => (
@@ -115,7 +127,9 @@ export function AiReferenceSection({
             Missing Skills ({missingSkills.length})
           </h3>
           {missingSkills.length === 0 ? (
-            <p className="text-xs italic text-zinc-400">No missing skills identified by AI.</p>
+            <p className="text-xs italic text-zinc-400">
+              No missing skills identified by AI.
+            </p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {missingSkills.map((skill, index) => (
@@ -154,4 +168,3 @@ export function AiReferenceSection({
     </section>
   );
 }
-

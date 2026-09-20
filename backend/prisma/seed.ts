@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const careers = [
   {
     slug: "backend_engineer",
-    name: "Backend Engineer",
+    name: "Backend Engineer (Node.js)",
     description:
       "Builds server-side applications, APIs, databases, distributed systems, and backend infrastructure.",
 

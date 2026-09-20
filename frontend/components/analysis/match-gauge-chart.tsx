@@ -52,7 +52,7 @@ export function MatchGaugeChart({
       >
         <div className="flex flex-col items-center justify-center text-center">
           <span className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            {clampedPercentage.toFixed(1)}%
+            {clampedPercentage.toFixed(2)}%
           </span>
           <span className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
             {label}

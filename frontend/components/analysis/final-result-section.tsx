@@ -197,7 +197,7 @@ export function FinalResultSection({
                   <Sparkles className="h-4 w-4 text-blue-500" />
                   <span>
                     Initial AI score was{" "}
-                    <strong>{roundedAiMatch.toFixed(1)}%</strong>
+                    <strong>{roundedAiMatch.toFixed(2)}%</strong>
                   </span>
                 </div>
 
@@ -205,12 +205,12 @@ export function FinalResultSection({
                   {scoreDelta > 0 ? (
                     <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400">
                       <TrendingUp className="h-3.5 w-3.5" />+
-                      {scoreDelta.toFixed(1)}% improvement
+                      {scoreDelta.toFixed(2)}% improvement
                     </span>
                   ) : scoreDelta < 0 ? (
                     <span className="inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-400">
                       <TrendingDown className="h-3.5 w-3.5" />
-                      {scoreDelta.toFixed(1)}% calibrated
+                      {scoreDelta.toFixed(2)}% calibrated
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-0.5 text-zinc-500">
@@ -310,7 +310,7 @@ export function FinalResultSection({
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-blue-500" />
               <span>
-                Original AI Baseline Assessment ({roundedAiMatch.toFixed(1)}%)
+                Original AI Baseline Assessment ({roundedAiMatch.toFixed(2)}%)
               </span>
             </div>
             {showAiBaseline ? (

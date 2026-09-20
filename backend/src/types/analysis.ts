@@ -1,9 +1,5 @@
 export type AnalysisStatus =
-  | "PENDING"
-  | "PROCESSING"
-  | "REVIEW"
-  | "COMPLETED"
-  | "FAILED";
+  "PENDING" | "PROCESSING" | "REVIEW" | "COMPLETED" | "FAILED";
 
 export interface AnalysisResult {
   matchPercentage: number;
@@ -22,6 +18,7 @@ export interface AnalysisResponse {
     name: string;
     description: string;
   };
+  extractedSkills?: string[] | null;
   aiResult?: AnalysisResult | null;
   finalResult?: AnalysisResult | null;
   createdAt: Date;

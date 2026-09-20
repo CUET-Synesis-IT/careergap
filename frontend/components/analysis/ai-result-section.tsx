@@ -27,7 +27,8 @@ function resolveSkill(
 ): { name: string; importance?: SkillImportance } {
   if (typeof item === "object" && item !== null && "name" in item) {
     const rawName = item.name;
-    const importance = item.importance || importanceMap.get(rawName.trim().toLowerCase());
+    const importance =
+      item.importance || importanceMap.get(rawName.trim().toLowerCase());
     return { name: rawName, importance };
   }
 
@@ -114,8 +115,8 @@ export function AiResultSection({
               )}
             </div>
             <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-              This score was generated automatically by evaluating your resume skills against the
-              target career requirements.
+              This score was generated automatically by evaluating your resume
+              skills against the target career requirements.
               {status === "REVIEW" &&
                 " A reviewer will verify these matches and publish the final result."}
             </p>
@@ -156,16 +157,6 @@ export function AiResultSection({
                 {parsedMissing.length}
               </p>
             </div>
-
-            <div className="col-span-2 rounded-lg border border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-800/50">
-              <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                <FileCode2 className="h-4 w-4 text-blue-600" />
-                <span>Total Skills Extracted from Resume</span>
-              </div>
-              <p className="mt-2 text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                {safeExtracted.length}
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -196,7 +187,8 @@ export function AiResultSection({
               ))
             ) : (
               <p className="text-xs text-zinc-500 py-2">
-                No matching skills detected in your resume for this career profile.
+                No matching skills detected in your resume for this career
+                profile.
               </p>
             )}
           </div>
@@ -234,37 +226,13 @@ export function AiResultSection({
               ))
             ) : (
               <p className="text-xs text-zinc-500 py-2">
-                No missing skills identified! Your resume covers all specified skills for this role.
+                No missing skills identified! Your resume covers all specified
+                skills for this role.
               </p>
             )}
           </div>
         </section>
       </div>
-
-      {/* Extracted Resume Skills */}
-      {safeExtracted.length > 0 && (
-        <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-3 dark:border-zinc-800">
-            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <FileCode2 className="h-4 w-4 text-zinc-500" />
-              Extracted Resume Skills ({safeExtracted.length})
-            </h3>
-            <span className="text-[11px] text-zinc-400">All skills detected by AI</span>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {safeExtracted.map((skill) => (
-              <span
-                key={skill}
-                className="inline-flex items-center rounded-md border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
-
