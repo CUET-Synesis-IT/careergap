@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
-import { ListChecks, Clock, User, LogOut } from "lucide-react";
+import { ListChecks, User, LogOut } from "lucide-react";
 
 export function ReviewerNav() {
   const pathname = usePathname();

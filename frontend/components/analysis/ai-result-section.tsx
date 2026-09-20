@@ -7,7 +7,6 @@ import {
   Check,
   AlertCircle,
   Sparkles,
-  FileCode2,
   CheckCircle2,
   XCircle,
 } from "lucide-react";
@@ -16,7 +15,6 @@ interface AiResultSectionProps {
   matchPercentage: number;
   matchedSkills: (string | { name: string; importance?: SkillImportance })[];
   missingSkills: (string | { name: string; importance?: SkillImportance })[];
-  extractedSkills?: string[] | null;
   career?: Career;
   status: string;
 }
@@ -68,7 +66,6 @@ export function AiResultSection({
   matchPercentage,
   matchedSkills,
   missingSkills,
-  extractedSkills = [],
   career,
   status,
 }: AiResultSectionProps) {
@@ -94,8 +91,6 @@ export function AiResultSection({
     () => missingSkills.map((s) => resolveSkill(s, importanceMap)),
     [missingSkills, importanceMap],
   );
-
-  const safeExtracted = Array.isArray(extractedSkills) ? extractedSkills : [];
 
   return (
     <div className="space-y-8">
