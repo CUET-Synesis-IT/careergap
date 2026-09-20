@@ -18,7 +18,6 @@ export function ReviewerNav() {
 
   const navItems = [
     { label: "Review Queue", href: "/reviewer/tasks", icon: ListChecks },
-    { label: "Review Queue", href: "/reviewer/tasks", icon: Clock },
     { label: "Account", href: "/reviewer/account", icon: User },
   ];
 
@@ -26,7 +25,10 @@ export function ReviewerNav() {
     <header className="sticky top-0 z-30 w-full border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6">
-          <Link href="/reviewer/tasks" className="flex items-center gap-2 font-bold tracking-tight">
+          <Link
+            href="/reviewer/tasks"
+            className="flex items-center gap-2 font-bold tracking-tight"
+          >
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white text-xs dark:bg-zinc-100 dark:text-zinc-900">
               CG
             </span>
@@ -39,7 +41,8 @@ export function ReviewerNav() {
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isActive =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}
@@ -61,8 +64,12 @@ export function ReviewerNav() {
         <div className="flex items-center gap-3">
           {user && (
             <div className="hidden sm:block text-right">
-              <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100">{user.name}</p>
-              <p className="text-[11px] text-zinc-500 truncate max-w-[150px]">{user.email}</p>
+              <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                {user.name}
+              </p>
+              <p className="text-[11px] text-zinc-500 truncate max-w-[150px]">
+                {user.email}
+              </p>
             </div>
           )}
           <button
@@ -78,4 +85,3 @@ export function ReviewerNav() {
     </header>
   );
 }
-

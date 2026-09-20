@@ -11,6 +11,7 @@ const analysisResponseSelect = {
   status: true,
   resumeId: true,
   careerId: true,
+  extractedSkills: true,
   aiMatchPercentage: true,
   aiMatchedSkills: true,
   aiMissingSkills: true,
@@ -36,6 +37,7 @@ function toAnalysisResponse(analysis: {
   status: string;
   resumeId: string;
   careerId: string;
+  extractedSkills: unknown;
   aiMatchPercentage: number | null;
   aiMatchedSkills: unknown;
   aiMissingSkills: unknown;
@@ -75,6 +77,7 @@ function toAnalysisResponse(analysis: {
     resumeId: analysis.resumeId,
     careerId: analysis.careerId,
     career: analysis.career,
+    extractedSkills: extractSkillArray(analysis.extractedSkills),
     aiResult,
     finalResult,
     createdAt: analysis.createdAt,

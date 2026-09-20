@@ -15,6 +15,7 @@ import {
   Hourglass,
   ArrowLeft,
   RotateCw,
+  FileCode2,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<
@@ -321,6 +322,33 @@ export default function AnalysisDetailPage() {
             >
               Return to Dashboard
             </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Extracted Resume Skills (Rendered when AI has extracted them) */}
+      {analysis.extractedSkills && analysis.extractedSkills.length > 0 && (
+        <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-100 pb-4 dark:border-zinc-800 gap-2">
+            <div className="flex items-center gap-2">
+              <FileCode2 className="h-5 w-5 text-blue-600 dark:text-blue-500" />
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                Skills Extracted from Resume
+              </h2>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+              Total: {analysis.extractedSkills.length}
+            </span>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {analysis.extractedSkills.map((skill: string) => (
+              <span
+                key={skill}
+                className="inline-flex items-center rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                {skill}
+              </span>
+            ))}
           </div>
         </section>
       )}

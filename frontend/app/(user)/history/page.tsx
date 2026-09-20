@@ -57,13 +57,13 @@ function getMatchScore(analysis: Analysis): string {
     analysis.status === "COMPLETED" &&
     analysis.finalResult?.matchPercentage != null
   ) {
-    return `${analysis.finalResult.matchPercentage.toFixed(1)}%`;
+    return `${analysis.finalResult.matchPercentage.toFixed(2)}%`;
   }
   if (
     analysis.status === "REVIEW" &&
     analysis.aiResult?.matchPercentage != null
   ) {
-    return `${analysis.aiResult.matchPercentage.toFixed(1)}% (AI)`;
+    return `${analysis.aiResult.matchPercentage.toFixed(2)}% (AI)`;
   }
   return "—";
 }

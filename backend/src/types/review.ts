@@ -17,6 +17,7 @@ export interface ReviewTaskResponse {
     id: string;
     resumeId: string;
     careerId: string;
+    extractedSkills?: string[] | null;
     aiResult: ReviewResult | null;
     career: {
       id: string;

@@ -120,7 +120,7 @@ npx prisma migrate dev
 npm run prisma:seed
 ```
 
-This inserts the five predefined careers (Backend Engineer, Frontend Engineer, AI/ML Engineer, DevOps Engineer, Data Engineer) into the database.
+This inserts the five predefined careers (Backend Engineer (Node.js), Frontend Engineer, AI/ML Engineer, DevOps Engineer, Data Engineer) into the database.
 
 #### 3e. Start the backend dev server
 

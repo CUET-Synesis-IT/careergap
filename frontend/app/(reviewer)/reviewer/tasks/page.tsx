@@ -35,7 +35,9 @@ function formatDate(dateStr: string) {
 export default function ReviewerTasksPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [claimErrorMessage, setClaimErrorMessage] = useState<string | null>(null);
+  const [claimErrorMessage, setClaimErrorMessage] = useState<string | null>(
+    null,
+  );
 
   const tasksQuery = useQuery({
     queryKey: ["review-tasks"],
@@ -54,7 +56,9 @@ export default function ReviewerTasksPage() {
         error instanceof ApiError &&
         (error.status === 409 || error.code === "REVIEW_TASK_LOCKED")
       ) {
-        setClaimErrorMessage("This task has already been claimed by another reviewer.");
+        setClaimErrorMessage(
+          "This task has already been claimed by another reviewer.",
+        );
       } else if (error instanceof ApiError) {
         setClaimErrorMessage(error.message || "Unable to claim this task.");
       } else {
@@ -123,7 +127,9 @@ export default function ReviewerTasksPage() {
       {tasksQuery.isLoading && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white p-16 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <Loader2 className="h-8 w-8 animate-spin text-zinc-600 dark:text-zinc-400" />
-          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">Loading review tasks...</p>
+          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+            Loading review tasks...
+          </p>
         </div>
       )}
 
@@ -157,7 +163,8 @@ export default function ReviewerTasksPage() {
             No review tasks are currently available.
           </h3>
           <p className="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
-            All pending career analyses have either been verified or claimed. Check back shortly.
+            All pending career analyses have either been verified or claimed.
+            Check back shortly.
           </p>
           <button
             onClick={handleRefresh}
@@ -173,10 +180,13 @@ export default function ReviewerTasksPage() {
       {!tasksQuery.isLoading && !tasksQuery.isError && tasks.length > 0 && (
         <div className="grid gap-5 md:grid-cols-2">
           {tasks.map((task) => {
-            const isThisTaskClaiming = claim.isPending && claim.variables === task.id;
+            const isThisTaskClaiming =
+              claim.isPending && claim.variables === task.id;
             const matchPercentage = task.analysis.aiResult?.matchPercentage;
-            const matchedSkillsCount = task.analysis.aiResult?.matchedSkills?.length ?? 0;
-            const missingSkillsCount = task.analysis.aiResult?.missingSkills?.length ?? 0;
+            const matchedSkillsCount =
+              task.analysis.aiResult?.matchedSkills?.length ?? 0;
+            const missingSkillsCount =
+              task.analysis.aiResult?.missingSkills?.length ?? 0;
             return (
               <article
                 key={task.id}
@@ -188,7 +198,9 @@ export default function ReviewerTasksPage() {
                     <div className="min-w-0">
                       <p className="flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-100">
                         <Briefcase className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400" />
-                        <span className="truncate">{task.analysis.career.name}</span>
+                        <span className="truncate">
+                          {task.analysis.career.name}
+                        </span>
                       </p>
                       {task.analysis.career.description && (
                         <p className="mt-1 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
@@ -213,7 +225,10 @@ export default function ReviewerTasksPage() {
                   <div className="mt-3.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
                     <span className="inline-flex items-center gap-1 font-mono text-zinc-600 dark:text-zinc-300">
                       <Hash className="h-3 w-3" />
-                      Analysis: #{task.analysisId ? task.analysisId.slice(0, 8) : task.analysis.id.slice(0, 8)}
+                      Analysis: #
+                      {task.analysisId
+                        ? task.analysisId.slice(0, 8)
+                        : task.analysis.id.slice(0, 8)}
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -229,8 +244,9 @@ export default function ReviewerTasksPage() {
                         AI match:
                       </span>
                       <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                        {matchPercentage !== null && matchPercentage !== undefined
-                          ? `${matchPercentage.toFixed(1)}%`
+                        {matchPercentage !== null &&
+                        matchPercentage !== undefined
+                          ? `${matchPercentage.toFixed(2)}%`
                           : "Pending calculation"}
                       </span>
                     </div>

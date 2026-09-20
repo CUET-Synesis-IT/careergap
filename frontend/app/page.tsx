@@ -25,7 +25,10 @@ export default function LandingPage() {
       {/* Public Header */}
       <header className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-bold text-xl tracking-tight"
+          >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
               CG
             </span>
@@ -72,8 +75,9 @@ export default function LandingPage() {
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-            Upload your resume. Choose a target career. Get an AI-analyzed, human-verified breakdown
-            of the skills you have and what you need next.
+            Upload your resume. Choose a target career. Get an AI-analyzed,
+            human-verified breakdown of the skills you have and what you need
+            next.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 pt-4">
@@ -116,7 +120,8 @@ export default function LandingPage() {
                 Upload Resume
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Upload your PDF resume. Text is extracted directly without storing raw document files.
+                Upload your PDF resume. Text is extracted directly without
+                storing raw document files.
               </p>
             </div>
 
@@ -129,7 +134,8 @@ export default function LandingPage() {
                 Choose Career
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Select your target career path from our predefined, industry-standard skill catalogs.
+                Select your target career path from our predefined,
+                industry-standard skill catalogs.
               </p>
             </div>
 
@@ -142,7 +148,8 @@ export default function LandingPage() {
                 AI Analysis
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                AI extracts technical skills and our deterministic engine computes matched vs missing requirements.
+                AI extracts technical skills and our deterministic engine
+                computes matched vs missing requirements.
               </p>
             </div>
 
@@ -155,7 +162,8 @@ export default function LandingPage() {
                 Human Review
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                An expert reviewer audits the AI result, corrects any discrepancies, and approves the final score.
+                An expert reviewer audits the AI result, corrects any
+                discrepancies, and approves the final score.
               </p>
             </div>
           </div>
@@ -166,7 +174,9 @@ export default function LandingPage() {
       <section className="px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-5xl space-y-12">
           <div className="text-center space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight">Built for Accuracy & Speed</h2>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Built for Accuracy & Speed
+            </h2>
             <p className="text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
               Cost-conscious AI engineering coupled with human accountability.
             </p>
@@ -178,9 +188,12 @@ export default function LandingPage() {
                 <Terminal className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-base mb-1">AI-Powered Skill Extraction</h3>
+                <h3 className="font-semibold text-base mb-1">
+                  AI-Powered Skill Extraction
+                </h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Targeted LLM prompts extract explicit technical skills from your resume with canonical normalization.
+                  Targeted LLM prompts extract explicit technical skills from
+                  your resume with canonical normalization.
                 </p>
               </div>
             </div>
@@ -190,9 +203,12 @@ export default function LandingPage() {
                 <Layers className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-base mb-1">Deterministic Gap Scoring</h3>
+                <h3 className="font-semibold text-base mb-1">
+                  Deterministic Gap Scoring
+                </h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Math, not hallucinations: match percentage and missing skills are computed deterministically.
+                  Math, not hallucinations: match percentage and missing skills
+                  are computed deterministically.
                 </p>
               </div>
             </div>
@@ -202,9 +218,12 @@ export default function LandingPage() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-base mb-1">Human-in-the-Loop Quality</h3>
+                <h3 className="font-semibold text-base mb-1">
+                  Human-in-the-Loop Quality
+                </h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Human reviewers hold exclusive claim locks to audit and correct AI determinations before publication.
+                  Human reviewers hold exclusive claim locks to audit and
+                  correct AI determinations before publication.
                 </p>
               </div>
             </div>
@@ -214,9 +233,12 @@ export default function LandingPage() {
                 <Database className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-base mb-1">Predefined Career Catalog</h3>
+                <h3 className="font-semibold text-base mb-1">
+                  Predefined Career Catalog
+                </h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Consistent skill profiles across key software and data roles, cached in Redis for fast retrieval.
+                  Consistent skill profiles across key software and data roles,
+                  cached in Redis for fast retrieval.
                 </p>
               </div>
             </div>
@@ -228,18 +250,30 @@ export default function LandingPage() {
       <section className="border-t border-zinc-200 bg-white px-4 py-20 sm:px-6 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto max-w-5xl space-y-8">
           <div className="text-center space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight">Supported Career Profiles</h2>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Supported Career Profiles
+            </h2>
             <p className="text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
-              Analyze your readiness against these core industry engineering profiles.
+              Analyze your readiness against these core industry engineering
+              profiles.
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {[
-              { name: "Backend Engineer", desc: "APIs, databases, server systems" },
-              { name: "Frontend Engineer", desc: "Web interfaces, client apps, UI" },
+              {
+                name: "Backend Engineer (Node.js)",
+                desc: "APIs, databases, server systems",
+              },
+              {
+                name: "Frontend Engineer",
+                desc: "Web interfaces, client apps, UI",
+              },
               { name: "AI/ML Engineer", desc: "Models, pipelines, ML systems" },
-              { name: "DevOps Engineer", desc: "CI/CD, cloud infra, containers" },
+              {
+                name: "DevOps Engineer",
+                desc: "CI/CD, cloud infra, containers",
+              },
               { name: "Data Engineer", desc: "Pipelines, storage, analytics" },
             ].map((career) => (
               <div
@@ -247,8 +281,12 @@ export default function LandingPage() {
                 className="flex flex-col justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <div>
-                  <h3 className="font-semibold text-base mb-1.5">{career.name}</h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{career.desc}</p>
+                  <h3 className="font-semibold text-base mb-1.5">
+                    {career.name}
+                  </h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {career.desc}
+                  </p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-xs text-zinc-700 dark:text-zinc-300 font-medium">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -283,7 +321,10 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="mt-auto border-t border-zinc-200 py-8 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-500">
-        <p>© {new Date().getFullYear()} CareerGap. Built with Next.js, Express, PostgreSQL & Redis.</p>
+        <p>
+          © {new Date().getFullYear()} CareerGap. Built with Next.js, Express,
+          PostgreSQL & Redis.
+        </p>
       </footer>
     </div>
   );

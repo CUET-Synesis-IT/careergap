@@ -22,6 +22,7 @@ const reviewTaskSelect = {
       aiMatchPercentage: true,
       aiMatchedSkills: true,
       aiMissingSkills: true,
+      extractedSkills: true,
       career: {
         select: {
           id: true,
@@ -34,9 +35,7 @@ const reviewTaskSelect = {
   },
 } as const;
 
-function extractSkillArray(
-  value: unknown,
-): string[] {
+function extractSkillArray(value: unknown): string[] {
   if (
     typeof value === "object" &&
     value !== null &&
@@ -44,58 +43,50 @@ function extractSkillArray(
     Array.isArray(value.skills)
   ) {
     return value.skills.filter(
-      (skill): skill is string =>
-        typeof skill === "string",
+      (skill): skill is string => typeof skill === "string",
     );
   }
 
   return [];
 }
 
-function toReviewTaskResponse(
-  task: {
+function toReviewTaskResponse(task: {
+  id: string;
+  status: string;
+  analysisId: string;
+  lockedById: string | null;
+  lockExpiresAt: Date | null;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  analysis: {
     id: string;
-    status: string;
-    analysisId: string;
-    lockedById: string | null;
-    lockExpiresAt: Date | null;
-    completedAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-    analysis: {
+    resumeId: string;
+    careerId: string;
+    extractedSkills: unknown;
+    aiMatchPercentage: number | null;
+    aiMatchedSkills: unknown;
+    aiMissingSkills: unknown;
+    career: {
       id: string;
-      resumeId: string;
-      careerId: string;
-      aiMatchPercentage: number | null;
-      aiMatchedSkills: unknown;
-      aiMissingSkills: unknown;
-      career: {
-        id: string;
-        slug: string;
-        name: string;
-        description: string;
-      };
+      slug: string;
+      name: string;
+      description: string;
     };
-  },
-): ReviewTaskResponse {
+  };
+}): ReviewTaskResponse {
   const aiResult =
     task.analysis.aiMatchPercentage !== null
       ? {
-          matchPercentage:
-            task.analysis.aiMatchPercentage,
-          matchedSkills: extractSkillArray(
-            task.analysis.aiMatchedSkills,
-          ),
-          missingSkills: extractSkillArray(
-            task.analysis.aiMissingSkills,
-          ),
+          matchPercentage: task.analysis.aiMatchPercentage,
+          matchedSkills: extractSkillArray(task.analysis.aiMatchedSkills),
+          missingSkills: extractSkillArray(task.analysis.aiMissingSkills),
         }
       : null;
 
   return {
     id: task.id,
-    status:
-      task.status as ReviewTaskResponse["status"],
+    status: task.status as ReviewTaskResponse["status"],
     analysisId: task.analysisId,
     lockedById: task.lockedById,
     lockExpiresAt: task.lockExpiresAt,
@@ -104,6 +95,7 @@ function toReviewTaskResponse(
       id: task.analysis.id,
       resumeId: task.analysis.resumeId,
       careerId: task.analysis.careerId,
+      extractedSkills: extractSkillArray(task.analysis.extractedSkills),
       aiResult,
       career: task.analysis.career,
     },
@@ -119,9 +111,7 @@ function toReviewTaskResponse(
  *   OPEN
  *   OR LOCKED with expired lock
  */
-export async function getOpenReviewTasks(): Promise<
-  ReviewTaskResponse[]
-> {
+export async function getOpenReviewTasks(): Promise<ReviewTaskResponse[]> {
   const now = new Date();
 
   // Lazily reopen expired tasks.
@@ -165,8 +155,7 @@ export async function claimReviewTask(
   const now = new Date();
 
   const lockExpiresAt = new Date(
-    now.getTime() +
-      REVIEW_LOCK_MINUTES * 60 * 1000,
+    now.getTime() + REVIEW_LOCK_MINUTES * 60 * 1000,
   );
 
   // First, reclaim this specific task if its
@@ -248,11 +237,7 @@ export async function claimReviewTask(
   });
 
   if (!task) {
-    throw new AppError(
-      "Review task not found.",
-      404,
-      "REVIEW_TASK_NOT_FOUND",
-    );
+    throw new AppError("Review task not found.", 404, "REVIEW_TASK_NOT_FOUND");
   }
 
   return toReviewTaskResponse(task);
@@ -273,11 +258,7 @@ export async function getReviewTask(
   });
 
   if (!task) {
-    throw new AppError(
-      "Review task not found.",
-      404,
-      "REVIEW_TASK_NOT_FOUND",
-    );
+    throw new AppError("Review task not found.", 404, "REVIEW_TASK_NOT_FOUND");
   }
 
   const now = new Date();
@@ -322,10 +303,7 @@ export async function getReviewTask(
   }
 
   // Another reviewer owns the active lock.
-  if (
-    task.status === "LOCKED" &&
-    task.lockedById !== reviewerId
-  ) {
+  if (task.status === "LOCKED" && task.lockedById !== reviewerId) {
     throw new AppError(
       "Review task is locked by another reviewer.",
       409,
@@ -404,10 +382,7 @@ export async function submitReview(
       );
     }
 
-    if (
-      !task.lockExpiresAt ||
-      task.lockExpiresAt <= now
-    ) {
+    if (!task.lockExpiresAt || task.lockExpiresAt <= now) {
       throw new AppError(
         "Review task lock has expired. Please claim the task again.",
         409,
@@ -420,14 +395,10 @@ export async function submitReview(
       data: {
         reviewTaskId: task.id,
         reviewerId,
-        originalMatchPercentage:
-          task.analysis.aiMatchPercentage,
-        originalMatchedSkills:
-          task.analysis.aiMatchedSkills ?? undefined,
-        originalMissingSkills:
-          task.analysis.aiMissingSkills ?? undefined,
-        finalMatchPercentage:
-          input.finalMatchPercentage,
+        originalMatchPercentage: task.analysis.aiMatchPercentage,
+        originalMatchedSkills: task.analysis.aiMatchedSkills ?? undefined,
+        originalMissingSkills: task.analysis.aiMissingSkills ?? undefined,
+        finalMatchPercentage: input.finalMatchPercentage,
         finalMatchedSkills: {
           skills: input.finalMatchedSkills,
         },
@@ -444,8 +415,7 @@ export async function submitReview(
         id: task.analysisId,
       },
       data: {
-        finalMatchPercentage:
-          input.finalMatchPercentage,
+        finalMatchPercentage: input.finalMatchPercentage,
         finalMatchedSkills: {
           skills: input.finalMatchedSkills,
         },

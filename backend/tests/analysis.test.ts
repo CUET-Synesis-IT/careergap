@@ -163,7 +163,7 @@ describe("Analysis Service", () => {
     const career = await prisma.career.create({
       data: {
         slug,
-        name: "Analysis Test Backend Engineer",
+        name: "Analysis Test Backend Engineer (Node.js)",
         description:
           "Backend engineering career for analysis integration tests.",
         profile: {

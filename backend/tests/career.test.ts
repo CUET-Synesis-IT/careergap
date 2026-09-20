@@ -75,7 +75,7 @@ describe("Career API", () => {
       expect.arrayContaining([
         expect.objectContaining({
           slug: "backend_engineer",
-          name: "Backend Engineer",
+          name: "Backend Engineer (Node.js)",
         }),
         expect.objectContaining({
           slug: "frontend_engineer",
@@ -110,7 +110,7 @@ describe("Career API", () => {
         career: expect.objectContaining({
           id: careerId,
           slug: "backend_engineer",
-          name: "Backend Engineer",
+          name: "Backend Engineer (Node.js)",
           description:
             "Builds server-side applications, APIs, databases, distributed systems, and backend infrastructure.",
         }),
