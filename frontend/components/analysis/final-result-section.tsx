@@ -335,9 +335,10 @@ export function FinalResultSection({
                     {parsedAiMatched.map((s) => (
                       <span
                         key={s.name}
-                        className="rounded bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                        className="inline-flex items-center rounded bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                       >
-                        {s.name}
+                        <span>{s.name}</span>
+                        <ImportanceBadge importance={s.importance} />
                       </span>
                     ))}
                   </div>
@@ -351,9 +352,10 @@ export function FinalResultSection({
                     {parsedAiMissing.map((s) => (
                       <span
                         key={s.name}
-                        className="rounded bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                        className="inline-flex items-center rounded bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                       >
-                        {s.name}
+                        <span>{s.name}</span>
+                        <ImportanceBadge importance={s.importance} />
                       </span>
                     ))}
                   </div>

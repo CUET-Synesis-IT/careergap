@@ -26,6 +26,7 @@ const analysisResponseSelect = {
       slug: true,
       name: true,
       description: true,
+      profile: true,
     },
   },
 } as const;
@@ -51,6 +52,7 @@ function toAnalysisResponse(analysis: {
     slug: string;
     name: string;
     description: string;
+    profile?: unknown;
   };
 }): AnalysisResponse {
   const aiResult =
@@ -77,7 +79,7 @@ function toAnalysisResponse(analysis: {
     resumeId: analysis.resumeId,
     careerId: analysis.careerId,
     career: analysis.career,
-    extractedSkills: extractSkillArray(analysis.extractedSkills),
+    extractedSkills: extractRawStringSkills(analysis.extractedSkills),
     aiResult,
     finalResult,
     createdAt: analysis.createdAt,
@@ -85,7 +87,38 @@ function toAnalysisResponse(analysis: {
   };
 }
 
-function extractSkillArray(value: unknown): string[] {
+function extractSkillArray(
+  value: unknown,
+): (string | { name: string; importance?: string })[] {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "skills" in value &&
+    Array.isArray(value.skills)
+  ) {
+    return value.skills
+      .map((skill) => {
+        if (typeof skill === "string") return skill;
+        if (typeof skill === "object" && skill !== null && "name" in skill) {
+          return {
+            name: String(skill.name),
+            ...("importance" in skill && skill.importance
+              ? { importance: String(skill.importance) }
+              : {}),
+          };
+        }
+        return null;
+      })
+      .filter(
+        (item): item is string | { name: string; importance?: string } =>
+          item !== null,
+      );
+  }
+
+  return [];
+}
+
+function extractRawStringSkills(value: unknown): string[] {
   if (
     typeof value === "object" &&
     value !== null &&

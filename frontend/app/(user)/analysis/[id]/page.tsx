@@ -91,7 +91,11 @@ export default function AnalysisDetailPage() {
     refetchInterval: (query) => {
       const status = query.state.data?.status;
       // Poll while in intermediate states; stop polling on COMPLETED or FAILED
-      if (status === "PENDING" || status === "PROCESSING" || status === "REVIEW") {
+      if (
+        status === "PENDING" ||
+        status === "PROCESSING" ||
+        status === "REVIEW"
+      ) {
         return 2500;
       }
       return false;
@@ -157,7 +161,8 @@ export default function AnalysisDetailPage() {
   // Unified accessor for AI and Final results
   const aiResult =
     analysis.aiResult ||
-    (analysis.aiMatchPercentage !== null && analysis.aiMatchPercentage !== undefined
+    (analysis.aiMatchPercentage !== null &&
+    analysis.aiMatchPercentage !== undefined
       ? {
           matchPercentage: analysis.aiMatchPercentage,
           matchedSkills: analysis.aiMatchedSkills || [],
@@ -168,7 +173,8 @@ export default function AnalysisDetailPage() {
   // Unified accessor for Final verified result
   const finalResult =
     analysis.finalResult ||
-    (analysis.finalMatchPercentage !== null && analysis.finalMatchPercentage !== undefined
+    (analysis.finalMatchPercentage !== null &&
+    analysis.finalMatchPercentage !== undefined
       ? {
           matchPercentage: analysis.finalMatchPercentage,
           matchedSkills: analysis.finalMatchedSkills || [],
@@ -212,7 +218,8 @@ export default function AnalysisDetailPage() {
             )}
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-zinc-500">
               <span>
-                Created: {new Date(analysis.createdAt).toLocaleDateString(undefined, {
+                Created:{" "}
+                {new Date(analysis.createdAt).toLocaleDateString(undefined, {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
@@ -257,12 +264,12 @@ export default function AnalysisDetailPage() {
               analysis.status === "PROCESSING"
                 ? "animate-spin text-blue-600 dark:text-blue-400"
                 : analysis.status === "REVIEW"
-                ? "text-amber-600 dark:text-amber-400"
-                : analysis.status === "COMPLETED"
-                ? "text-emerald-600 dark:text-emerald-400"
-                : analysis.status === "FAILED"
-                ? "text-red-600 dark:text-red-400"
-                : "text-zinc-500"
+                  ? "text-amber-600 dark:text-amber-400"
+                  : analysis.status === "COMPLETED"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : analysis.status === "FAILED"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-zinc-500"
             }`}
           />
           <div className="space-y-1">
@@ -288,8 +295,9 @@ export default function AnalysisDetailPage() {
               : "AI is analyzing your resume..."}
           </h3>
           <p className="mt-1 text-xs text-zinc-500 max-w-md mx-auto">
-            Our AI engine is processing your uploaded resume and comparing your skills
-            against industry requirements. Results will appear here automatically once ready.
+            Our AI engine is processing your uploaded resume and comparing your
+            skills against industry requirements. Results will appear here
+            automatically once ready.
           </p>
         </section>
       )}
@@ -372,7 +380,6 @@ export default function AnalysisDetailPage() {
           matchPercentage={aiResult.matchPercentage}
           matchedSkills={aiResult.matchedSkills}
           missingSkills={aiResult.missingSkills}
-          extractedSkills={analysis.extractedSkills}
           career={analysis.career}
           status={analysis.status}
         />
@@ -383,7 +390,6 @@ export default function AnalysisDetailPage() {
           matchPercentage={aiResult.matchPercentage}
           matchedSkills={aiResult.matchedSkills}
           missingSkills={aiResult.missingSkills}
-          extractedSkills={analysis.extractedSkills}
           career={analysis.career}
           status={analysis.status}
         />

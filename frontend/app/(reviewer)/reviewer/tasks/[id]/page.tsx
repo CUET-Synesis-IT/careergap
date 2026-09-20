@@ -34,7 +34,9 @@ export default function ReviewTaskDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center p-20 text-center">
         <Loader2 className="h-8 w-8 animate-spin text-zinc-600 dark:text-zinc-400" />
-        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">Loading review task...</p>
+        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+          Loading review task...
+        </p>
       </div>
     );
   }
@@ -43,12 +45,15 @@ export default function ReviewTaskDetailPage() {
   if (
     taskQuery.isError &&
     taskQuery.error instanceof ApiError &&
-    (taskQuery.error.status === 409 || taskQuery.error.code === "REVIEW_TASK_LOCKED")
+    (taskQuery.error.status === 409 ||
+      taskQuery.error.code === "REVIEW_TASK_LOCKED")
   ) {
     return (
       <div className="mx-auto max-w-2xl rounded-xl border border-amber-200 bg-amber-50 p-8 text-center text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
         <AlertCircle className="mx-auto h-10 w-10 text-amber-600 dark:text-amber-400" />
-        <h2 className="mt-3 text-lg font-bold">Task Locked by Another Reviewer</h2>
+        <h2 className="mt-3 text-lg font-bold">
+          Task Locked by Another Reviewer
+        </h2>
         <p className="mt-1.5 text-sm text-amber-800 dark:text-amber-300">
           This task is currently being reviewed by another reviewer.
         </p>
@@ -146,7 +151,10 @@ export default function ReviewTaskDetailPage() {
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
             <span className="inline-flex items-center gap-1 font-mono text-zinc-600 dark:text-zinc-300">
               <Hash className="h-3 w-3" />
-              Analysis: #{task.analysisId ? task.analysisId.slice(0, 8) : task.analysis.id.slice(0, 8)}
+              Analysis: #
+              {task.analysisId
+                ? task.analysisId.slice(0, 8)
+                : task.analysis.id.slice(0, 8)}
             </span>
             <span className="inline-flex items-center gap-1 font-mono text-zinc-600 dark:text-zinc-300">
               <Hash className="h-3 w-3" />
@@ -185,13 +193,11 @@ export default function ReviewTaskDetailPage() {
       <AiReferenceSection
         aiResult={task.analysis.aiResult}
         extractedSkills={task.analysis.extractedSkills}
+        career={task.analysis.career}
       />
 
       {/* Reviewer Correction Form */}
-      <ReviewCorrectionForm
-        task={task}
-        isTimerExpired={isTimerExpired}
-      />
+      <ReviewCorrectionForm task={task} isTimerExpired={isTimerExpired} />
     </div>
   );
 }

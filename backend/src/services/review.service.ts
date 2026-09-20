@@ -29,13 +29,45 @@ const reviewTaskSelect = {
           slug: true,
           name: true,
           description: true,
+          profile: true,
         },
       },
     },
   },
 } as const;
 
-function extractSkillArray(value: unknown): string[] {
+function extractSkillArray(
+  value: unknown,
+): (string | { name: string; importance?: string })[] {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "skills" in value &&
+    Array.isArray(value.skills)
+  ) {
+    return value.skills
+      .map((skill) => {
+        if (typeof skill === "string") return skill;
+        if (typeof skill === "object" && skill !== null && "name" in skill) {
+          return {
+            name: String(skill.name),
+            ...("importance" in skill && skill.importance
+              ? { importance: String(skill.importance) }
+              : {}),
+          };
+        }
+        return null;
+      })
+      .filter(
+        (item): item is string | { name: string; importance?: string } =>
+          item !== null,
+      );
+  }
+
+  return [];
+}
+
+function extractRawStringSkills(value: unknown): string[] {
   if (
     typeof value === "object" &&
     value !== null &&
@@ -72,6 +104,7 @@ function toReviewTaskResponse(task: {
       slug: string;
       name: string;
       description: string;
+      profile?: unknown;
     };
   };
 }): ReviewTaskResponse {
@@ -95,7 +128,7 @@ function toReviewTaskResponse(task: {
       id: task.analysis.id,
       resumeId: task.analysis.resumeId,
       careerId: task.analysis.careerId,
-      extractedSkills: extractSkillArray(task.analysis.extractedSkills),
+      extractedSkills: extractRawStringSkills(task.analysis.extractedSkills),
       aiResult,
       career: task.analysis.career,
     },

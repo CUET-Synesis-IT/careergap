@@ -2,8 +2,8 @@ export type ReviewTaskStatus = "OPEN" | "LOCKED" | "COMPLETED";
 
 export interface ReviewResult {
   matchPercentage: number;
-  matchedSkills: string[];
-  missingSkills: string[];
+  matchedSkills: (string | { name: string; importance?: string })[];
+  missingSkills: (string | { name: string; importance?: string })[];
 }
 
 export interface ReviewTaskResponse {
@@ -24,6 +24,7 @@ export interface ReviewTaskResponse {
       slug: string;
       name: string;
       description: string;
+      profile?: unknown;
     };
   };
   createdAt: Date;

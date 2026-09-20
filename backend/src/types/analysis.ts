@@ -3,8 +3,8 @@ export type AnalysisStatus =
 
 export interface AnalysisResult {
   matchPercentage: number;
-  matchedSkills: string[];
-  missingSkills: string[];
+  matchedSkills: (string | { name: string; importance?: string })[];
+  missingSkills: (string | { name: string; importance?: string })[];
 }
 
 export interface AnalysisResponse {
@@ -17,6 +17,7 @@ export interface AnalysisResponse {
     slug: string;
     name: string;
     description: string;
+    profile?: unknown;
   };
   extractedSkills?: string[] | null;
   aiResult?: AnalysisResult | null;

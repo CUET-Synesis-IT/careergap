@@ -1,18 +1,86 @@
-import type { AnalysisResult } from "@/lib/api/types";
+import { useMemo } from "react";
+import type { AnalysisResult, Career, SkillImportance } from "@/lib/api/types";
 import { CheckCircle2, FileText, Sparkles, XCircle } from "lucide-react";
 
 interface AiReferenceSectionProps {
   aiResult: AnalysisResult | null | undefined;
   extractedSkills?: string[] | null;
+  career?: Career;
+}
+
+function resolveSkill(
+  item: string | { name: string; importance?: SkillImportance },
+  importanceMap: Map<string, SkillImportance>,
+): { name: string; importance?: SkillImportance } {
+  if (typeof item === "object" && item !== null && "name" in item) {
+    const rawName = item.name;
+    const importance =
+      item.importance || importanceMap.get(rawName.trim().toLowerCase());
+    return { name: rawName, importance };
+  }
+
+  const name = String(item);
+  const importance = importanceMap.get(name.trim().toLowerCase());
+  return { name, importance };
+}
+
+function ImportanceBadge({ importance }: { importance?: SkillImportance }) {
+  if (!importance) return null;
+
+  switch (importance) {
+    case "HIGH":
+      return (
+        <span className="ml-1 inline-flex items-center rounded-sm bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
+          Core
+        </span>
+      );
+    case "MEDIUM":
+      return (
+        <span className="ml-1 inline-flex items-center rounded-sm bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+          Medium
+        </span>
+      );
+    case "LOW":
+      return (
+        <span className="ml-1 inline-flex items-center rounded-sm bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+          Bonus
+        </span>
+      );
+    default:
+      return null;
+  }
 }
 
 export function AiReferenceSection({
   aiResult,
   extractedSkills,
+  career,
 }: AiReferenceSectionProps) {
   const matchPercentage = aiResult?.matchPercentage ?? null;
-  const matchedSkills = aiResult?.matchedSkills ?? [];
-  const missingSkills = aiResult?.missingSkills ?? [];
+  const rawMatchedSkills = aiResult?.matchedSkills ?? [];
+  const rawMissingSkills = aiResult?.missingSkills ?? [];
+
+  const importanceMap = useMemo(() => {
+    const map = new Map<string, SkillImportance>();
+    if (career?.profile?.skills) {
+      career.profile.skills.forEach((s) => {
+        if (s.name && s.importance) {
+          map.set(s.name.trim().toLowerCase(), s.importance);
+        }
+      });
+    }
+    return map;
+  }, [career]);
+
+  const matchedSkills = useMemo(
+    () => rawMatchedSkills.map((s) => resolveSkill(s, importanceMap)),
+    [rawMatchedSkills, importanceMap],
+  );
+
+  const missingSkills = useMemo(
+    () => rawMissingSkills.map((s) => resolveSkill(s, importanceMap)),
+    [rawMissingSkills, importanceMap],
+  );
 
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
@@ -107,13 +175,14 @@ export function AiReferenceSection({
             </p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
-              {matchedSkills.map((skill, index) => (
+              {matchedSkills.map(({ name, importance }, index) => (
                 <span
-                  key={`${skill}-${index}`}
+                  key={`${name}-${index}`}
                   className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
                 >
                   <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                  {skill}
+                  <span>{name}</span>
+                  <ImportanceBadge importance={importance} />
                 </span>
               ))}
             </div>
@@ -132,13 +201,14 @@ export function AiReferenceSection({
             </p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
-              {missingSkills.map((skill, index) => (
+              {missingSkills.map(({ name, importance }, index) => (
                 <span
-                  key={`${skill}-${index}`}
+                  key={`${name}-${index}`}
                   className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300"
                 >
                   <XCircle className="h-3 w-3 shrink-0 text-rose-600 dark:text-rose-400" />
-                  {skill}
+                  <span>{name}</span>
+                  <ImportanceBadge importance={importance} />
                 </span>
               ))}
             </div>
