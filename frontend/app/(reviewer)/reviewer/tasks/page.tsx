@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { reviewApi } from "@/lib/api/review.api";
 import { ApiError } from "@/lib/api/client";
+import { useAuth } from "@/context/auth-context";
 import {
   AlertCircle,
+  ArrowRight,
   Briefcase,
   CheckCircle2,
   Clock,
@@ -14,6 +16,7 @@ import {
   Inbox,
   Loader2,
   RefreshCw,
+  ShieldCheck,
   Sparkles,
   X,
 } from "lucide-react";
@@ -35,6 +38,7 @@ function formatDate(dateStr: string) {
 export default function ReviewerTasksPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [claimErrorMessage, setClaimErrorMessage] = useState<string | null>(
     null,
   );
@@ -182,6 +186,10 @@ export default function ReviewerTasksPage() {
           {tasks.map((task) => {
             const isThisTaskClaiming =
               claim.isPending && claim.variables === task.id;
+            const isMyLockedTask =
+              task.status === "LOCKED" &&
+              Boolean(user?.id) &&
+              task.lockedById === user?.id;
             const matchPercentage = task.analysis.aiResult?.matchPercentage;
             const matchedSkillsCount =
               task.analysis.aiResult?.matchedSkills?.length ?? 0;
@@ -190,7 +198,11 @@ export default function ReviewerTasksPage() {
             return (
               <article
                 key={task.id}
-                className="flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-5 shadow-xs transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                className={`flex flex-col justify-between rounded-xl border p-5 shadow-xs transition ${
+                  isMyLockedTask
+                    ? "border-amber-300 bg-amber-50/20 dark:border-amber-900/60 dark:bg-amber-950/20"
+                    : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                }`}
               >
                 <div>
                   {/* Career & Status Header */}
@@ -214,8 +226,13 @@ export default function ReviewerTasksPage() {
                       <span className="inline-flex shrink-0 items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/50 dark:text-emerald-300">
                         OPEN
                       </span>
+                    ) : isMyLockedTask ? (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900 dark:border-amber-900/80 dark:bg-amber-950/80 dark:text-amber-200">
+                        <ShieldCheck className="h-3 w-3" />
+                        IN PROGRESS
+                      </span>
                     ) : (
-                      <span className="inline-flex shrink-0 items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/50 dark:text-amber-300">
+                      <span className="inline-flex shrink-0 items-center rounded-full border border-zinc-200 bg-zinc-100 px-2.5 py-0.5 text-xs font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300">
                         {task.status}
                       </span>
                     )}
@@ -267,17 +284,26 @@ export default function ReviewerTasksPage() {
                       claim.mutate(task.id);
                     }}
                     disabled={claim.isPending}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-xs transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                      isMyLockedTask
+                        ? "bg-amber-700 hover:bg-amber-800 text-white dark:bg-amber-600 dark:hover:bg-amber-500"
+                        : "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    }`}
                   >
                     {isThisTaskClaiming ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Claiming task…
+                        Loading task…
+                      </>
+                    ) : isMyLockedTask ? (
+                      <>
+                        <span>Resume Review</span>
+                        <ArrowRight className="h-4 w-4" />
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="h-4 w-4" />
-                        Review Task
+                        <span>Review Task</span>
                       </>
                     )}
                   </button>
