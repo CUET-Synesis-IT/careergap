@@ -144,7 +144,9 @@ function toReviewTaskResponse(task: {
  *   OPEN
  *   OR LOCKED with expired lock
  */
-export async function getOpenReviewTasks(): Promise<ReviewTaskResponse[]> {
+export async function getOpenReviewTasks(
+  reviewerId?: string,
+): Promise<ReviewTaskResponse[]> {
   const now = new Date();
 
   // Lazily reopen expired tasks.
@@ -162,14 +164,41 @@ export async function getOpenReviewTasks(): Promise<ReviewTaskResponse[]> {
     },
   });
 
+  const orConditions: import("@prisma/client").Prisma.ReviewTaskWhereInput[] = [
+    { status: "OPEN" },
+  ];
+
+  if (reviewerId) {
+    orConditions.push({
+      status: "LOCKED",
+      lockedById: reviewerId,
+      lockExpiresAt: { gt: now },
+    });
+  }
+
   const tasks = await prisma.reviewTask.findMany({
     where: {
-      status: "OPEN",
+      OR: [
+        { status: "OPEN" },
+        ...(reviewerId
+          ? [
+              {
+                status: "LOCKED",
+                lockedById: reviewerId,
+                lockExpiresAt: {
+                  gt: now,
+                },
+              },
+            ]
+          : []),
+      ],
     },
+    where: { OR: orConditions },
     select: reviewTaskSelect,
     orderBy: {
       createdAt: "asc",
     },
+    orderBy: { createdAt: "asc" },
   });
 
   return tasks.map(toReviewTaskResponse);
@@ -180,6 +209,8 @@ export async function getOpenReviewTasks(): Promise<ReviewTaskResponse[]> {
  *
  * Only one concurrent reviewer can change the
  * task from OPEN/expired LOCKED to LOCKED.
+ * If claimed by the same reviewer with an active lock,
+ * the lock is renewed/maintained.
  */
 export async function claimReviewTask(
   taskId: string,
@@ -210,15 +241,21 @@ export async function claimReviewTask(
 
   // Critical operation:
   //
-  // Only a task currently OPEN can be changed.
-  //
-  // If two reviewers execute this simultaneously,
-  // PostgreSQL allows only one conditional update
-  // to affect the row.
+  // Either a task currently OPEN can be locked,
+  // or a task already locked by the SAME reviewer can be re-entered.
   const claimed = await prisma.reviewTask.updateMany({
     where: {
       id: taskId,
-      status: "OPEN",
+      OR: [
+        { status: "OPEN" },
+        {
+          status: "LOCKED",
+          lockedById: reviewerId,
+          lockExpiresAt: {
+            gt: now,
+          },
+        },
+      ],
     },
     data: {
       status: "LOCKED",
@@ -472,4 +509,68 @@ export async function submitReview(
       },
     });
   });
+}
+
+/**
+ * Voluntarily release a task lock so other reviewers
+ * can pick it up immediately without waiting for the
+ * 15-minute natural expiry.
+ *
+ * Only the reviewer who owns the active lock may release it.
+ */
+export async function releaseReviewTask(
+  taskId: string,
+  reviewerId: string,
+): Promise<void> {
+  const now = new Date();
+
+  const released = await prisma.reviewTask.updateMany({
+    where: {
+      id: taskId,
+      status: "LOCKED",
+      lockedById: reviewerId,
+      lockExpiresAt: {
+        gt: now,
+      },
+    },
+    data: {
+      status: "OPEN",
+      lockedById: null,
+      lockExpiresAt: null,
+    },
+  });
+
+  if (released.count === 0) {
+    // Check whether the task even exists / belongs to someone else
+    const task = await prisma.reviewTask.findUnique({
+      where: { id: taskId },
+      select: { id: true, status: true, lockedById: true },
+    });
+
+    if (!task) {
+      throw new AppError(
+        "Review task not found.",
+        404,
+        "REVIEW_TASK_NOT_FOUND",
+      );
+    }
+
+    if (task.status === "COMPLETED") {
+      throw new AppError(
+        "Review task is already completed.",
+        409,
+        "REVIEW_TASK_COMPLETED",
+      );
+    }
+
+    if (task.lockedById !== reviewerId) {
+      throw new AppError(
+        "You do not own this review task.",
+        403,
+        "REVIEW_TASK_NOT_OWNER",
+      );
+    }
+
+    // Lock already expired — treat as success (task is already OPEN)
+  }
 }

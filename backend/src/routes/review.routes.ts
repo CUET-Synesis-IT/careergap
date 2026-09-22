@@ -4,6 +4,7 @@ import {
   claimReviewTaskController,
   getReviewTaskController,
   submitReviewController,
+  releaseReviewTaskController,
 } from "../controllers/review.controller";
 import { authenticate } from "../middleware/auth.middleware";
 import { requireRole } from "../middleware/role.middleware";
@@ -37,6 +38,12 @@ router.post(
   validate(reviewTaskIdParamsSchema, "params"),
   validate(submitReviewSchema, "body"),
   submitReviewController,
+);
+
+router.delete(
+  "/tasks/:id/release",
+  validate(reviewTaskIdParamsSchema, "params"),
+  releaseReviewTaskController,
 );
 
 export default router;

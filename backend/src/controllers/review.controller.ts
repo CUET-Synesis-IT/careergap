@@ -4,17 +4,19 @@ import {
   claimReviewTask,
   getReviewTask,
   submitReview,
+  releaseReviewTask,
 } from "../services/review.service";
 import type { SubmitReviewInput } from "../validators/review.validator";
 import { sendSuccess } from "../utils/response";
 
 export async function getOpenReviewTasksController(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tasks = await getOpenReviewTasks();
+    const reviewerId = req.user?.id;
+    const tasks = await getOpenReviewTasks(reviewerId);
 
     sendSuccess(res, tasks, 200);
   } catch (error) {
@@ -69,6 +71,23 @@ export async function submitReviewController(
     const result = await submitReview(id, reviewerId, input);
 
     sendSuccess(res, result, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function releaseReviewTaskController(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const reviewerId = req.user!.id;
+    const { id } = req.params;
+
+    await releaseReviewTask(id, reviewerId);
+
+    sendSuccess(res, null, 200);
   } catch (error) {
     next(error);
   }
