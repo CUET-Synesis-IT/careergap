@@ -177,27 +177,8 @@ export async function getOpenReviewTasks(
   }
 
   const tasks = await prisma.reviewTask.findMany({
-    where: {
-      OR: [
-        { status: "OPEN" },
-        ...(reviewerId
-          ? [
-              {
-                status: "LOCKED",
-                lockedById: reviewerId,
-                lockExpiresAt: {
-                  gt: now,
-                },
-              },
-            ]
-          : []),
-      ],
-    },
     where: { OR: orConditions },
     select: reviewTaskSelect,
-    orderBy: {
-      createdAt: "asc",
-    },
     orderBy: { createdAt: "asc" },
   });
 
